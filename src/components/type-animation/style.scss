@@ -1,0 +1,19 @@
+.type-animation {
+  font-family: 'Space Mono', monospace;
+}
+.cursor {
+  animation: blink-caret 0.75s step-end infinite;
+  border-right: 1px solid;
+}
+
+@keyframes blink-caret {
+  from {
+    border-right-color: transparent;
+  }
+  50% {
+    border-right-color: white;
+  }
+  to {
+    border-right-color: transparent;
+  }
+}

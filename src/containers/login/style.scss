@@ -1,0 +1,26 @@
+.login-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    
+    .text-container {
+      padding: 20px;
+      background: #0c162d;
+      width: 600px;
+
+      .repo-name {
+        color: #00cfc8;
+        font-family: 'Space Mono', monospace;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 20px;
+      }
+    }
+  }
+}
