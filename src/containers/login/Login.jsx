@@ -6,6 +6,7 @@ import './style.scss';
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
+  const [email, setEmail] = useState('');
 
   const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
 
@@ -19,6 +20,14 @@ const Login = () => {
               isTypeDone ? (
                 <div className="repo-name">
                   Enter the repository name*
+                  <div className='repo-name-wrapper'>
+                    <input
+                      className='repo-name-wrapper-input'
+                      onChange={(e) => setEmail(e.target.value)}
+                      value={email}
+                    />
+                    <button className='repo-name-wrapper-btn'>Continue</button>
+                  </div>
                 </div>
               ) : null
             }
