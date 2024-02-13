@@ -26,7 +26,7 @@ const TypeAnimation = (props) => {
         clearInterval(interval);
         onDone();
       }
-    }
+    };
     updateState();
     interval = setInterval(() => {
       updateState();
@@ -42,7 +42,7 @@ const TypeAnimation = (props) => {
       <span style={{ color }} dangerouslySetInnerHTML={{ __html: animatedText }} className='type-animation'/>
       <span className="cursor">|</span>
     </div>
-  )
+  );
 };
 
 export default TypeAnimation;

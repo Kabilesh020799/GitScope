@@ -19,7 +19,7 @@ const MainRoute = () => {
         element={<Navigate to="/login" />}
       />
     </Routes>
-  )
+  );
 };
 
 export default MainRoute;
