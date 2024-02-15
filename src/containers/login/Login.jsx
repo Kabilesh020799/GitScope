@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import LoginBackground from './components/login-background';
 import TypeAnimation from '../../components/type-animation';
 
@@ -12,13 +12,14 @@ const Login = () => {
 
   const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
 
-  useEffect(() => {
-    const getResult = async() => {
-      const result = await api.get('williamtroup/Heat.js/commits');
-      console.log(result);
-    };
-    getResult();
-  }, []);
+  // user defined functions
+  const onContinue = async() => {
+    const repoList = repo.split('/');
+    const user = repoList?.[3];
+    const repoName = repoList?.[4];
+    const result = await api.get(`${user}/${repoName}/commits`);
+    console.log(result);
+  };
 
   return (
     <div className='login-container'>
@@ -36,7 +37,12 @@ const Login = () => {
                       onChange={(e) => setRepo(e.target.value)}
                       value={repo}
                     />
-                    <button className='repo-name-wrapper-btn'>Continue</button>
+                    <button
+                      className='repo-name-wrapper-btn'
+                      onClick={onContinue}
+                    >
+                      Continue
+                    </button>
                   </div>
                 </div>
               ) : null

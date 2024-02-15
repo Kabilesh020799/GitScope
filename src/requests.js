@@ -1,5 +1,4 @@
 const get = (url, props) => {
-  console.log(process.env);
   return fetch(`${process.env.REACT_APP_GITHUB_URL}/${url}`, {
     headers: {
       "Authorization": `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
