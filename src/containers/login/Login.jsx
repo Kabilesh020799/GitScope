@@ -5,10 +5,12 @@ import TypeAnimation from '../../components/type-animation';
 import api from '../../requests';
 
 import './style.scss';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
   const [repo, setRepo] = useState('');
+  const navigate = useNavigate();
 
   const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
 
@@ -17,8 +19,10 @@ const Login = () => {
     const repoList = repo.split('/');
     const user = repoList?.[3];
     const repoName = repoList?.[4];
-    const result = await api.get(`${user}/${repoName}/commits`);
-    console.log(result);
+    let result = await api.get(`${user}/${repoName}/commits`);
+    if(result.length) {
+      navigate('/dashboard');
+    }
   };
 
   return (

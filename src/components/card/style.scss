@@ -1,0 +1,19 @@
+.card {
+  height: 100px;
+  width: 200px;
+  background: #1E202B;
+  border-radius: 4px;
+  box-shadow: 4px 4px 4px #212630;
+  margin-top: 30px;
+  margin-left: 30px;
+
+  &-name {
+    font-size: 20px;
+    color: white;
+  }
+  &-value {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+  }
+}
