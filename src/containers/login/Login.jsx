@@ -6,14 +6,20 @@ import api from '../../requests';
 
 import './style.scss';
 import { useNavigate } from 'react-router-dom';
+import { addCommits } from '../dashboard/reducer';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
   const [repo, setRepo] = useState('');
   const navigate = useNavigate();
 
-  const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
+  //redux operations
+  const dispatch = useDispatch();
+  const { commits } = useSelector( state => state.commitReducer );
 
+  const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
+console.log(commits);
   // user defined functions
   const onContinue = async() => {
     const repoList = repo.split('/');
@@ -22,6 +28,7 @@ const Login = () => {
     let result = await api.get(`${user}/${repoName}/commits`);
     if(result.length) {
       navigate('/dashboard');
+      dispatch(addCommits({ data: result} ));
     }
   };
 
