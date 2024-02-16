@@ -2,32 +2,22 @@ import React, { useState } from 'react';
 import LoginBackground from './components/login-background';
 import TypeAnimation from '../../components/type-animation';
 
-import api from '../../requests';
-
 import './style.scss';
 import { useNavigate } from 'react-router-dom';
-import { addCommits } from '../dashboard/reducer';
-import { useDispatch } from 'react-redux';
+import { setStorage } from '../../utils/common-utils';
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
   const [repo, setRepo] = useState('');
   const navigate = useNavigate();
 
-  //redux operations
-  const dispatch = useDispatch();
-
   const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
 
   // user defined functions
   const onContinue = async() => {
-    const repoList = repo.split('/');
-    const user = repoList?.[3];
-    const repoName = repoList?.[4];
-    let result = await api.get(`${user}/${repoName}/commits`);
-    if(result.length) {
+    if(repo) {
+      setStorage('repo-url', repo);
       navigate('/dashboard');
-      dispatch(addCommits({ data: result} ));
     }
   };
 
