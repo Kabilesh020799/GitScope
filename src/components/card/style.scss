@@ -6,10 +6,15 @@
   box-shadow: 1px 1px 4px 4px #212630;
   margin-top: 30px;
   margin-left: 30px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 
   &-name {
     font-size: 20px;
     color: #555963;
+    text-transform: capitalize;
   }
   &-value {
     font-size: 30px;

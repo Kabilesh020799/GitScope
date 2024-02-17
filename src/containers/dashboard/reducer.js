@@ -3,7 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const commitSlice = createSlice({
   name: 'commits',
   initialState: {
-    commits: []
+    commits: [],
+    collaborators: []
   },
   reducers: {
     addCommits (state, action) {
@@ -12,9 +13,15 @@ const commitSlice = createSlice({
     clearCommits (state) {
       state.commits = [];
     },
+    addCollaborators (state, action) {
+      state.collaborators = [...action.payload.data];
+    },
+    clearCollaborators (state) {
+      state.collaborators = [];
+    },
   }
 });
 
-export const { addCommits, clearCommits } = commitSlice.actions;
+export const { addCommits, clearCommits, addCollaborators, clearCollaborators, } = commitSlice.actions;
 
 export default commitSlice.reducer;
