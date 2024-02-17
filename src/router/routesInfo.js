@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from '../containers/login';
 import Dashboard from '../containers/dashboard/Dashboard';
+import CommitActivity from '../containers/commit-activity';
 
 const routes = [
   {
@@ -12,7 +13,12 @@ const routes = [
     id: 'dashboard',
     route: 'dashboard',
     component: <Dashboard />
-  }
+  },
+  {
+    id: 'commit-activity',
+    route: 'commit-activity',
+    component: <CommitActivity />,
+  },
 ];
 
 export default routes;

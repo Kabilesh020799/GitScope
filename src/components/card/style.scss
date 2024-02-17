@@ -9,7 +9,7 @@
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 
   &-name {
     font-size: 20px;
@@ -20,5 +20,12 @@
     font-size: 30px;
     font-weight: bold;
     color: white;
+  }
+  &-link {
+    color: blue;
+    text-decoration: none;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
   }
 }

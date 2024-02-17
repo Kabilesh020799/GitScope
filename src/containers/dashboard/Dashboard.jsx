@@ -39,6 +39,7 @@ const Dashboard = () => {
       <Card
         name="commits"
         value={commits?.length}
+        path="/commit-activity"
       />
       <Card
         name="contributors"
