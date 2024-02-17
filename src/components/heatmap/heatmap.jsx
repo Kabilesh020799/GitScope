@@ -8,12 +8,16 @@ const Heatmap = (props) => {
   const width = 450 - margin.left - margin.right;
   const height =  450 - margin.top - margin.bottom;
 
+  const svg = d3.select('.heatmap')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
   return(
     <div className="heatmap"></div>
   )
 };
-
-export default Heatmap;
 
 Heatmap.defaultProps = {
   margin: {
@@ -23,4 +27,6 @@ Heatmap.defaultProps = {
     left: 30
   }
 };
+
+export default Heatmap;
 
