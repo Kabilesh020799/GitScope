@@ -4,7 +4,7 @@ const get = (url, props) => {
       "Authorization": `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
     },
     ...props
-  }).then((res) => res.json());
+  });
 };
 
 const post = (url, props) => {
