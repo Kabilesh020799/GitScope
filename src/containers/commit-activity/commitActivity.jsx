@@ -1,18 +1,17 @@
 import React, { useEffect } from "react";
 import Heatmap from "../../components/heatmap";
-import api from "../../requests";
-import { constructGitUrl, getStorage } from "../../utils/common-utils";
 import { addCommits } from "../dashboard/reducer";
 import { useDispatch, useSelector } from "react-redux";
+import { getAllCommits } from "./apiUtils";
 
 const CommitActivity = () => {
   const { commits } = useSelector((state) => state.commitReducer);
   const dispatch = useDispatch();
-  const repoUrl = getStorage('repo-url');
 
   // getting commits of the repo from github
   const getCommits = async() => {
-    let result = await api.get(constructGitUrl(repoUrl, 'commits?per_page=100'));
+    let result = await getAllCommits(`&since=${new Date(2023, 0, 1)}&until=${new Date(2023, 11, 31, 23, 59, 0, 0)}`);
+    console.log(result);
     if(result.length) {
       dispatch(addCommits({data: result}));
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from 'd3';
 import { dates, months } from "./constants";
+import './style.scss';
 
 const Heatmap = (props) => {
   const {
@@ -33,7 +34,7 @@ const Heatmap = (props) => {
 
       svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .style('color', 'white')
+        .style('color', 'black')
         .call(d3.axisBottom(x));
     
       // Build Y scales and axis:
@@ -42,13 +43,13 @@ const Heatmap = (props) => {
         .domain(months)
         .padding(0.01);
       svg.append("g")
-        .style('color', 'white')
+        .style('color', 'black')
         .call(d3.axisLeft(y));
     
       // Build color scale
       var myColor = d3.scaleLinear()
         .range(["white", "#69b3a2"])
-        .domain([1, 100]);
+        .domain([1, 10]);
     
       // Read the data
       const dataArr = convertCommitsToObject(data);

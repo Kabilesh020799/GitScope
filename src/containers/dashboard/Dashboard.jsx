@@ -10,7 +10,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // calling the github API
+    // calling the github APIs
     getTotalCommits()
       .then((res) => dispatch(addTotalCommits({ data: res })));
     getCollaborators()
