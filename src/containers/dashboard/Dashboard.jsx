@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './style.scss';
 import Card from '../../components/card';
 import { useSelector, useDispatch } from 'react-redux';
-import { addCollaborators, addTotalCommits } from '../dashboard/reducer';
+import { addCollaborators, addCreatedDate, addTotalCommits } from '../dashboard/reducer';
 import { getCollaborators, getTotalCommits } from './apiUtils';
 
 const Dashboard = () => {
@@ -12,7 +12,10 @@ const Dashboard = () => {
   useEffect(() => {
     // calling the github APIs
     getTotalCommits()
-      .then((res) => dispatch(addTotalCommits({ data: res })));
+      .then((res) => {
+        dispatch(addTotalCommits({ data: res?.length }));
+        dispatch(addCreatedDate({ data: res?.createdYear }));
+      });
     getCollaborators()
       .then((res) => {
         if(res.status !== 403) {

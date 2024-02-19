@@ -6,6 +6,7 @@ const commitSlice = createSlice({
     commits: [],
     collaborators: [],
     totalCommits: 0,
+    createdYear: null,
   },
   reducers: {
     addCommits (state, action) {
@@ -26,6 +27,13 @@ const commitSlice = createSlice({
     clearTotalCommits (state) {
       state.totalCommits = 0;
     },
+    addCreatedDate (state, action) {
+      console.log(action);
+      state.createdYear = action.payload.data;
+    },
+    clearCreatedDate (state) {
+      state.createdYear = null;
+    },
   }
 });
 
@@ -36,6 +44,8 @@ export const {
   clearCollaborators,
   addTotalCommits,
   clearTotalCommits,
+  clearCreatedDate,
+  addCreatedDate,
 } = commitSlice.actions;
 
 export default commitSlice.reducer;

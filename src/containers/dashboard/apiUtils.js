@@ -18,9 +18,9 @@ const getTotalCommits = async() => {
     const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
     let lastPageCommits = await getCommits(`page=${lastPage}`);
     lastPageCommits = await lastPageCommits.json();
-    return (lastPageCommits.length + 100 * (lastPage - 1));
+    return ({ length: lastPageCommits.length + 100 * (lastPage - 1), createdYear: lastPageCommits?.[lastPageCommits?.length - 1]?.commit?.author?.date });
   }
-  return result.length;
+  return ({ length: result.length, createdYear: result?.[result?.length - 1]?.commit?.author?.date  });
 };
 
 // getting collaborators info of the repo

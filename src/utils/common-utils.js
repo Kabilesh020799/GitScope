@@ -11,7 +11,7 @@ const constructGitUrl = (repoUrl, key) => {
   const repoList = repoUrl.split('/');
   const user = repoList?.[3];
   const repoName = repoList?.[4];
-  return `${user}/${repoName}/${key}`;
+  return `${user}/${repoName}/${key ? key : ''}`;
 };
 
 export {

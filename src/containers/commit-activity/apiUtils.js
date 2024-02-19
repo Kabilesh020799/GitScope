@@ -15,6 +15,7 @@ const getAllCommits = async(filter, page=1) => {
   return [...result];
 };
 
+
 export {
   getAllCommits,
 };

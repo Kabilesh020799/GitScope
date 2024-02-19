@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as d3 from 'd3';
 import { dates, months } from "./constants";
 import './style.scss';
@@ -10,6 +10,35 @@ const Heatmap = (props) => {
   } = props;
 
   const heatMapRef = useRef(null);
+  const [emptyData, setEmptyData] = useState([]);
+  const [convertData, setConvertedData] = useState([]);
+
+  const findMissingValues = () => {
+    months.forEach((month) => {
+      if(convertData.findIndex((dataItem) => dataItem.group === month) === -1) {
+        dates.forEach((date) => {
+          setEmptyData((prevState) => ([...prevState, { group: month, variable: date }]));
+        });
+      } else {
+        const filteredDates = convertData.filter((cD) => cD.group === month);
+        dates.forEach((date) => {
+          if(filteredDates?.findIndex((fD) => fD.variable === date) === -1) { 
+            setEmptyData((prevState) => ([...prevState, { group: month, variable: date }]));
+          }
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    setConvertedData(convertCommitsToObject(data));
+  }, [data]);
+
+  useEffect(() => {
+    if(convertData?.length) {
+      findMissingValues();
+    }
+  }, [convertData]);
 
   useEffect(() => {
     const heat = () => {
@@ -34,7 +63,7 @@ const Heatmap = (props) => {
 
       svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .style('color', 'black')
+        .style('color', 'white')
         .call(d3.axisBottom(x));
     
       // Build Y scales and axis:
@@ -43,16 +72,16 @@ const Heatmap = (props) => {
         .domain(months)
         .padding(0.01);
       svg.append("g")
-        .style('color', 'black')
+        .style('color', 'white')
         .call(d3.axisLeft(y));
     
       // Build color scale
       var myColor = d3.scaleLinear()
-        .range(["white", "#69b3a2"])
-        .domain([1, 10]);
+        .range(["#0D4429", "#39D353" ])
+        .domain([1, 100]);
     
       // Read the data
-      const dataArr = convertCommitsToObject(data);
+      const dataArr = convertData;
       // create a tooltip
       var tooltip = d3.select("#my_dataviz")
           .append("div")
@@ -67,9 +96,9 @@ const Heatmap = (props) => {
         var mouseover = function() {
           tooltip.style("opacity", 1);
         };
-        var mousemove = function(d) {
+        var mousemove = function(event, d) {
           tooltip
-            .html("The exact value of<br>this cell is: " + d.value)
+            .html("The total number of commits is " + d.value || 0)
             .style("left", (d3.pointer(this)[0] + 70) + "px")
             .style("top", (d3.pointer(this)[1]) + "px");
         };
@@ -79,20 +108,22 @@ const Heatmap = (props) => {
 
         // add the squares
         svg.selectAll()
-          .data(dataArr)
+          .data([...dataArr, ...emptyData])
           .enter()
           .append("rect")
           .attr("x", function(d) { return x(d.variable); })
           .attr("y", function(d) { return y(d.group); })
           .attr("width", x.bandwidth())
           .attr("height", y.bandwidth())
-          .style("fill", function(d) { return myColor(d.value); })
+          .style("fill", function(d) {
+            return d.value ? myColor(d.value) : "rgb(42 52 65)"; }
+            )
           .on("mouseover", mouseover)
           .on("mousemove", mousemove)
           .on("mouseleave", mouseleave);
     };
     heat();
-  }, [data]);
+  }, [convertData, emptyData]);
 
   const convertCommitsToObject = (commits) => {
     const commitCounts = {};
