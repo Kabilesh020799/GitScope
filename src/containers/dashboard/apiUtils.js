@@ -25,7 +25,7 @@ const getTotalCommits = async() => {
 
 // getting collaborators info of the repo
 const getCollaborators = async() => {
-  let result = await api.get(constructGitUrl(repoUrl, 'collaborators'));
+  let result = await api.get(constructGitUrl(repoUrl, 'contributors'));
   if(result.status === 403) {
     result = await result.json();
     alert(result.message);

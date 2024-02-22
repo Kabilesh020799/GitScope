@@ -34,6 +34,7 @@ const Dashboard = () => {
       <Card
         name="contributors"
         value={collaborators?.length}
+        path="/contributor-activity"
       />
     </div>
   );
