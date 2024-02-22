@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from 'd3';
 import { dates, months } from "./constants";
 import './style.scss';
@@ -9,7 +9,6 @@ const Heatmap = (props) => {
     data,
   } = props;
 
-  const heatMapRef = useRef(null);
   const [emptyData, setEmptyData] = useState([]);
   const [convertData, setConvertedData] = useState([]);
 
@@ -36,6 +35,7 @@ const Heatmap = (props) => {
 
   useEffect(() => {
     if(convertData?.length) {
+      setEmptyData([]);
       findMissingValues();
     }
   }, [convertData]);
@@ -151,8 +151,6 @@ const Heatmap = (props) => {
   return(
     <div
       className="heatmap"
-      style={{marginTop: '10rem'}}
-      ref={heatMapRef}
       id="my_dataviz"
     />
   );
