@@ -1,7 +1,8 @@
-const get = (url, props) => {
+const get = (url, props, headers) => {
   return fetch(`${process.env.REACT_APP_GITHUB_URL}/${url}`, {
     headers: {
       "Authorization": `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
+      ...headers
     },
     ...props
   });

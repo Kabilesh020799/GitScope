@@ -7,6 +7,7 @@ const commitSlice = createSlice({
     collaborators: [],
     totalCommits: 0,
     createdYear: null,
+    totalCollaborators: 0,
   },
   reducers: {
     addCommits (state, action) {
@@ -20,6 +21,9 @@ const commitSlice = createSlice({
     },
     addCollaborators (state, action) {
       state.collaborators = [...state.collaborators, ...action.payload.data];
+    },
+    replaceCollaborators (state, action) {
+      state.collaborators = [...action.payload.data];
     },
     clearCollaborators (state) {
       state.collaborators = [];
@@ -36,6 +40,12 @@ const commitSlice = createSlice({
     clearCreatedDate (state) {
       state.createdYear = null;
     },
+    addTotalCollaborators (state, action) {
+      state.totalCollaborators = action.payload.data;
+    },
+    clearTotalCollaborators (state) {
+      state.totalCollaborators = 0;
+    },
   }
 });
 
@@ -49,6 +59,9 @@ export const {
   clearCreatedDate,
   addCreatedDate,
   replaceCommits,
+  replaceCollaborators,
+  addTotalCollaborators,
+  clearTotalCollaborators,
 } = commitSlice.actions;
 
 export default commitSlice.reducer;

@@ -37,6 +37,7 @@ const CommitActivity = () => {
         }
       }
     }
+    return () => setYears([]);
   }, [createdYear]);
 
   useEffect(() => {
@@ -55,8 +56,7 @@ const CommitActivity = () => {
       >
         {years?.map((yearItem) => (
           <div
-            key={yearItem}
-            value={yearItem}
+            key={yearItem.toString()}
             onClick={() => onSelectYear(yearItem)}
             className={`commit-activity-years-item ${year === yearItem ? 'focus' : ''}`}
           >

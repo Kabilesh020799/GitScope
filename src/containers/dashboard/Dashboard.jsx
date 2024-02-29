@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import './style.scss';
 import Card from '../../components/card';
 import { useSelector, useDispatch } from 'react-redux';
-import { addCollaborators, addCreatedDate, addTotalCommits } from '../dashboard/reducer';
+import { addCreatedDate, addTotalCommits, addTotalCollaborators } from '../dashboard/reducer';
 import { getCollaborators, getTotalCommits } from './apiUtils';
 
 const Dashboard = () => {
-  const { collaborators, totalCommits } = useSelector( state => state.commitReducer );
+  const { totalCollaborators, totalCommits } = useSelector( state => state.commitReducer );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -19,7 +19,8 @@ const Dashboard = () => {
     getCollaborators()
       .then((res) => {
         if(res.status !== 403) {
-          dispatch(addCollaborators({data: res}));
+          console.log({data: res?.length});
+          dispatch(addTotalCollaborators({data: res?.length}));
         }
       });
   }, []);
@@ -33,7 +34,7 @@ const Dashboard = () => {
       />
       <Card
         name="contributors"
-        value={collaborators?.length}
+        value={totalCollaborators}
         path="/contributor-activity"
       />
     </div>
