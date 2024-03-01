@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import './style.scss';
 import { addCreatedDate, addTotalCollaborators, replaceCollaborators } from "../dashboard/reducer";
 import { useDispatch, useSelector } from "react-redux";
-import BubbleGraph from "../../components/bubble-graph";
+// import BubbleGraph from "../../components/bubble-graph";
 import { getAllCollaborators } from "./apiUtils";
 import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
+import BubbleChart from "../../components/bubble-chart";
 
 const ContributorActivity = () => {
   const [year, ] = useState(2023);
@@ -84,7 +85,10 @@ const ContributorActivity = () => {
 
   return (
     <div className="contributor-activity">
-      <BubbleGraph
+      {/* <BubbleGraph
+        data={filteredCollabs?.map((collaborator) => ({ ...collaborator?.author, contributions: collaborator?.total, weeks: collaborator?.commits, }))}
+      /> */}
+      <BubbleChart
         data={filteredCollabs?.map((collaborator) => ({ ...collaborator?.author, contributions: collaborator?.total, weeks: collaborator?.commits, }))}
       />
     </div>
