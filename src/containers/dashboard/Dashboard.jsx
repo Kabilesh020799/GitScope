@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import './style.scss';
 import Card from '../../components/card';
 import { useSelector, useDispatch } from 'react-redux';
 import { addCreatedDate, addTotalCommits, addTotalCollaborators } from '../dashboard/reducer';
 import { getCollaborators, getTotalCommits } from './apiUtils';
+import './style.scss';
 
 const Dashboard = () => {
   const { totalCollaborators, totalCommits } = useSelector( state => state.commitReducer );

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllCommits } from "./apiUtils";
 import { getTotalCommits } from "../dashboard/apiUtils";
 import './style.scss';
+import YearSelector from "../../components/year-selector";
 
 const CommitActivity = () => {
   const [year, setYear] = useState(2023);
@@ -50,19 +51,14 @@ const CommitActivity = () => {
 
   return (
     <div className="commit-activity">
-      <Heatmap data={commits} />
-      <div
-        className="commit-activity-years"
-      >
-        {years?.map((yearItem) => (
-          <div
-            key={yearItem.toString()}
-            onClick={() => onSelectYear(yearItem)}
-            className={`commit-activity-years-item ${year === yearItem ? 'focus' : ''}`}
-          >
-            {yearItem}
-          </div>
-        ))}
+      <header className="commit-activity-header">Commit history of the repo for the year {year}</header>
+      <div className="commit-activity-graphs">
+        <Heatmap data={commits} />
+        <YearSelector
+          years={years}
+          selectedYear={year}
+          onSelectYear={onSelectYear}
+        />
       </div>
     </div>
   );

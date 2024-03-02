@@ -8,13 +8,58 @@ const BubbleChart = (props) => {
     data,
   } = props;
 
+    // Define what happens when dragging starts
+
   const constructBubble = () => {
-    const weeks = Object.values(data).map(week => {
-      console.log(week);
-      return ({
-        value: week.contributions,
+    const weeks = Object.values(data).map(week => ({
+        value: week?.contributions,
+        login: week?.login,
+      }));
+    const initialPositions = {};
+
+    const drag = d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
+
+    function dragstarted(event, d) {
+      initialPositions[d.data.id] = { x: d.x, y: d.y }; // Store the initial position of the dragged node
+  
+      d3.select(this).raise().attr("stroke", "black");
+    }
+  
+    // Define what happens when dragging
+    function dragged(event, d) {
+      d3.select(this)
+        .attr("cx", d.x = event.x)
+        .attr("cy", d.y = event.y);
+    }
+  
+  
+    // Define what happens when dragging ends
+    function dragended(event, draggedNode) {
+      root.leaves().forEach(node => {
+        if (node === draggedNode) return; // Skip the node that was just dragged
+  console.log(node, draggedNode);
+        const dx = node.x - draggedNode.x;
+        const dy = node.y - draggedNode.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const minDistance = node.r + draggedNode.r;
+  
+        if (distance < minDistance) {
+          // Calculate the angle of movement
+          const angle = Math.atan2(dy, dx);
+  
+          // Push the overlapping node away
+          node.x += Math.cos(angle) * (minDistance - distance);
+          node.y += Math.sin(angle) * (minDistance - distance);
+  
+          // Update the position of the pushed node
+          d3.select(`[id="node-${node.data.id}"]`)
+            .attr("transform", `translate(${node.x}, ${node.y})`);
+        }
       });
-    });
+    }
 
     // Set the dimensions of the chart
     const height = width;
@@ -51,37 +96,44 @@ const BubbleChart = (props) => {
 
     // Add titles for tooltips
     node.append("title")
-        .text(d => `${d.data.id}\n${d.value} contributions`);
+        .text(d => `${d.data.login}\n${d.value} contributions`);
 
     // Add circles
     node.append("circle")
         .attr("fill-opacity", 0.7)
         .attr("fill", d => color(d.data.value))
-        .attr("r", d => {
-          console.log(d);
-          return d.r|| 0;
-        });
+        .attr("r", d => d.r|| 0);
 
     // Add labels (optional based on space)
     node.append("text")
     .attr("text-anchor", "middle")
     .attr("dy", "0.35em") 
+    .style("font-weight", 'bold')
+    .style("font-size", '13px')
     .text(d => d.data.value);
+    node.call(drag);
 
     document.querySelector('.bubble-chart').appendChild(svg.node());
   };
 
   useEffect(() => {
     if(data.length) {
-      console.log(data);
       constructBubble();
     }
+
+    return () => {
+      d3.select('.bubble-chart').html('');
+    };
   }, [data]);
 
   return(
-    <div className='bubble-chart'>
-
-    </div>
+    <div
+      className='bubble-chart'
+      style={{ 
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    />
   );
 };
 
