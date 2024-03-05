@@ -6,6 +6,7 @@ import { getAllCommits } from "./apiUtils";
 import { getTotalCommits } from "../dashboard/apiUtils";
 import './style.scss';
 import YearSelector from "../../components/year-selector";
+import { useNavigate } from "react-router-dom";
 
 const CommitActivity = () => {
   const [year, setYear] = useState(2023);
@@ -13,6 +14,7 @@ const CommitActivity = () => {
 
   const { commits, createdYear } = useSelector((state) => state.commitReducer);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // getting commits of the repo from github
   const getCommits = async() => {
@@ -25,6 +27,10 @@ const CommitActivity = () => {
   // onchange dropdown
   const onSelectYear = (selectedYear) => {
     setYear(selectedYear);
+  };
+
+  const onClickDashboard = () => {
+    navigate('/dashboard');
   };
 
   // useEffects block
@@ -51,7 +57,15 @@ const CommitActivity = () => {
 
   return (
     <div className="commit-activity">
-      <header className="commit-activity-header">Commit history of the repo for the year {year}</header>
+      <div className="commit-activity-wrapper">
+        <header className="commit-activity-header">Commit history of the repo for the year {year}</header>
+        <button
+          className="commit-activity-btn"
+          onClick={onClickDashboard}
+        >
+          Go to Dashboard
+        </button>
+      </div>
       <div className="commit-activity-graphs">
         <Heatmap data={commits} />
         <YearSelector

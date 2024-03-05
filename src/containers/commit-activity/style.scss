@@ -9,10 +9,31 @@
 
   &-header {
     color: #fff;
-    font-size: 16px;
+    font-size: 30px;
+    text-transform: capitalize;
+    text-align: center;
+    flex: 1;
+    font-weight: bold;
   }
 
   &-graphs {
     display: flex;
+  }
+
+  &-wrapper {
+    display: flex;
+    align-items: center;
+    width:  calc(100% - 10rem);
+    padding: 0rem 10rem;
+    margin-bottom: 4rem;
+  }
+
+  &-btn {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    padding: 20px;
+    background-color: #1F6EEB;
+    border-radius: 4px;
   }
 }
