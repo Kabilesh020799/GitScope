@@ -8,6 +8,8 @@ const commitSlice = createSlice({
     totalCommits: 0,
     createdYear: null,
     totalCollaborators: 0,
+    loading: false,
+    comments: [],
   },
   reducers: {
     addCommits (state, action) {
@@ -46,6 +48,18 @@ const commitSlice = createSlice({
     clearTotalCollaborators (state) {
       state.totalCollaborators = 0;
     },
+    setLoading (state) {
+      state.loading = true;
+    },
+    clearLoading (state) {
+      state.loading = false;
+    },
+    setComments (state, action) {
+      state.comments = action.payload.data;
+    },
+    clearComments (state) {
+      state.comments = [];
+    },
   }
 });
 
@@ -62,6 +76,10 @@ export const {
   replaceCollaborators,
   addTotalCollaborators,
   clearTotalCollaborators,
+  setLoading,
+  clearLoading,
+  setComments,
+  clearComments,
 } = commitSlice.actions;
 
 export default commitSlice.reducer;

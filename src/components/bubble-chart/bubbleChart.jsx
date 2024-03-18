@@ -17,30 +17,24 @@ const BubbleChart = (props) => {
       }));
     const initialPositions = {};
 
-    const drag = d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
-
-    function dragstarted(event, d) {
+    const dragstarted = (event, d) => {
       initialPositions[d.data.id] = { x: d.x, y: d.y }; // Store the initial position of the dragged node
   
       d3.select(this).raise().attr("stroke", "black");
-    }
+    };
   
     // Define what happens when dragging
-    function dragged(event, d) {
+    const dragged = (event, d) => {
       d3.select(this)
         .attr("cx", d.x = event.x)
         .attr("cy", d.y = event.y);
-    }
+    };
   
   
     // Define what happens when dragging ends
-    function dragended(event, draggedNode) {
+    const dragended = (event, draggedNode) => {
       root.leaves().forEach(node => {
         if (node === draggedNode) return; // Skip the node that was just dragged
-  console.log(node, draggedNode);
         const dx = node.x - draggedNode.x;
         const dy = node.y - draggedNode.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -59,7 +53,12 @@ const BubbleChart = (props) => {
             .attr("transform", `translate(${node.x}, ${node.y})`);
         }
       });
-    }
+    };
+
+    const drag = d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
 
     // Set the dimensions of the chart
     const height = width;

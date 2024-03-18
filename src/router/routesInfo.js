@@ -3,6 +3,7 @@ import Login from '../containers/login';
 import Dashboard from '../containers/dashboard/Dashboard';
 import CommitActivity from '../containers/commit-activity';
 import ContributorActivity from '../containers/contributor-activity';
+import CommentActivity from '../containers/comment-activity';
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     id: 'contributor-activity',
     route: 'contributor-activity',
     component: <ContributorActivity />,
+  },
+  {
+    id: 'comment-activity',
+    route: 'comment-activity',
+    component: <CommentActivity />,
   },
 ];
 

@@ -1,0 +1,19 @@
+.comment-activity {
+  margin-top: 5rem;
+  margin-left: 3rem;
+  .heading {
+    font-size: 40px;
+    color: #fff;
+  }
+  .wordmaps {
+    margin-top: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    color: #fff;
+
+    h1 {
+      text-align: center;
+    }
+  }
+}

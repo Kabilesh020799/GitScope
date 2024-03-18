@@ -19,7 +19,6 @@ const Dashboard = () => {
     getCollaborators()
       .then((res) => {
         if(res.status !== 403) {
-          console.log({data: res?.length});
           dispatch(addTotalCollaborators({data: res?.length}));
         }
       });
