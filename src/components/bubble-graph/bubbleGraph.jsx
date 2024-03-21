@@ -42,7 +42,7 @@ const BubbleGraph = (props) => {
         svg.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
-        .style('color', 'white');
+        .style('color', '#8193b2');
 
     // Add Y axis
     var y = d3.scaleLinear()
@@ -51,7 +51,7 @@ const BubbleGraph = (props) => {
       
         svg.append("g")
         .call(d3.axisLeft(y))
-        .style('color', 'white');
+        .style('color', '#8193b2');
 
         // Add a scale for bubble size
     var z = d3.scaleLinear()
@@ -71,7 +71,7 @@ const BubbleGraph = (props) => {
       .style("background-color", "black")
       .style("border-radius", "5px")
       .style("padding", "10px")
-      .style("color", "white");
+      .style("color", "#8193b2");
 
     // -2- Create 3 functions to show / update (when mouse move but stay on same circle) / hide the tooltip
     var showTooltip = function(_, d) {

@@ -63,7 +63,7 @@ const Heatmap = (props) => {
 
       svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .style('color', 'white')
+        .style('color', '#8193b2')
         .call(d3.axisBottom(x));
     
       // Build Y scales and axis:
@@ -72,7 +72,7 @@ const Heatmap = (props) => {
         .domain(months)
         .padding(0.01);
       svg.append("g")
-        .style('color', 'white')
+        .style('color', '#8193b2')
         .call(d3.axisLeft(y));
     
       // Build color scale
@@ -87,7 +87,7 @@ const Heatmap = (props) => {
           .append("div")
           .style("opacity", 0)
           .attr("class", "tooltip")
-          .style("background-color", "white")
+          .style("background-color", "#8193b2")
           .style("border", "solid")
           .style("border-width", "2px")
           .style("border-radius", "5px")

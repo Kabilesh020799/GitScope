@@ -33,7 +33,7 @@ console.log(sortedEntries, classKey);
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x))
     .selectAll("text")
-    .style("color", "#fff")
+    .style("color", "#8193b2")
     .attr("transform", "translate(-10,0)rotate(-45)")
     .style("text-anchor", "end");
 
@@ -42,7 +42,7 @@ console.log(sortedEntries, classKey);
     .domain([0, sortedEntries?.[0]?.[1]])
     .range([height, 0]);
   svg.append("g")
-    .style("color", "#fff")
+    .style("color", "#8193b2")
     .call(d3.axisLeft(y));
 
   // Bars

@@ -48,10 +48,10 @@ const LoginBackground = () => {
 				},
 				particles: {
 					color: {
-						value: "#ffffff",
+						value: "#8193b2",
 					},
 					links: {
-						color: "#ffffff",
+						color: "#8193b2",
 						distance: 150,
 						enable: true,
 						opacity: 0.5,
