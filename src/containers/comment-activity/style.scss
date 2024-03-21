@@ -23,4 +23,30 @@
       text-align: center;
     }
   }
+  .barcharts {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+
+    &-contents {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    &-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      span {
+        font-size: 25px;
+        font-weight: 500;
+      }
+    }
+  }
 }

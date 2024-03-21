@@ -28,17 +28,17 @@ const getAllComments = async(props) => {
   result = await result.json();
   const filteredResult = result?.filter((resultItem) => new Date(resultItem?.created_at).getFullYear() === year);
   filteredResult?.forEach((item) => {
-    item?.body?.split(" ")?.filter((i) => positiveWords.includes(i)).forEach((word) => {
+    item?.body?.split(" ")?.filter((i) => (positiveWords.includes(i) && i !== "")).forEach((word) => {
       extractPositiveWords[word] = (extractPositiveWords[word] || 0) + 1;
     });
 
-    item?.body?.split(" ")?.filter((i) => negativeWords.includes(i)).forEach((word) => {
+    item?.body?.split(" ")?.filter((i) => (negativeWords.includes(i) && i !== "")).forEach((word) => {
       extractNegativeWords[word] = (extractNegativeWords[word] || 0) + 1;
     });
   });
   if(new Date(filteredResult?.[filteredResult?.length - 1]?.created_at).getFullYear() === year) {
     if(nextPageLink) {
-      const res = await getAllComments({ page: pageNum + 1, year, pW: extractNegativeWords, nW: extractPositiveWords});
+      const res = await getAllComments({ page: pageNum + 1, year, pW: extractPositiveWords, nW: extractNegativeWords});
       return ({
         extractPositiveWords: {...extractPositiveWords, ...(res?.extractPositiveWords || {})},
         extractNegativeWords: {...extractNegativeWords, ...(res?.extractNegativeWords || {})},

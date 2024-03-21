@@ -6,6 +6,7 @@ import WordMap from '../../components/word-map';
 import './style.scss';
 import YearSelector from '../../components/year-selector';
 import { getTotalCommits } from '../dashboard/apiUtils';
+import BarChart from '../../components/bar-chart';
 
 const CommentActivity = () => {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const CommentActivity = () => {
       dispatch(addCreatedDate({ data: res.createdYear }));
     });
   }, [year]);
-  
+
   useEffect(() => {
     if(createdYear) {
       const firstYear = new Date(createdYear).getFullYear();
@@ -72,8 +73,30 @@ const CommentActivity = () => {
             ) : null }
           </div>
         </div>
-        <div className="barcharts">
-          <div className="barchart-positive">
+      </div>
+      <div className="barcharts">
+        <h1>Some of the most frequently used</h1>
+        <div className='barcharts-contents'>
+          <div className="barcharts-block">
+            {
+              Object.keys(comments?.extractPositiveWords || {})?.length  ? (
+                <>
+                  <span>Positive Words</span>
+                  <BarChart data={comments?.extractPositiveWords} classKey="positive" />
+                </>
+              ) : null
+            }
+          </div>
+          <div className="barcharts-block">
+            {
+              Object.keys(comments?.extractNegativeWords || {})?.length  ? 
+              (
+                <>
+                  <span>Negative Words</span>
+                  <BarChart data={comments?.extractNegativeWords} classKey="negative" />
+                </>
+              ) : null
+            }
           </div>
         </div>
       </div>
