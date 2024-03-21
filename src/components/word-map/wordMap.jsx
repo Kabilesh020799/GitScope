@@ -8,7 +8,7 @@ const WordMap = (props) => {
     margin,
     classKey,
   } = props;
-  
+
   useEffect(() => {
     const width = 450 - margin.left - margin.right;
     const height = 450 - margin.top - margin.bottom;

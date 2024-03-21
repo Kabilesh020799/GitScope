@@ -1,6 +1,13 @@
 .comment-activity {
   margin-top: 5rem;
   margin-left: 3rem;
+
+  &-contents {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 20px;
+  }
+
   .heading {
     font-size: 40px;
     color: #fff;
