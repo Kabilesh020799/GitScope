@@ -47,7 +47,7 @@ const Dashboard = () => {
       <Card
         name="Active Pulls"
         value={totalPulls}
-        path="/pulls-activity"
+        path="/contributor-relation"
       />
     </div>
   );

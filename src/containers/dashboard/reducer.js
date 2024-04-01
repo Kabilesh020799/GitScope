@@ -11,6 +11,7 @@ const commitSlice = createSlice({
     loading: false,
     comments: [],
     totalPulls: 0,
+    pullRequests: [],
   },
   reducers: {
     addCommits (state, action) {
@@ -67,6 +68,12 @@ const commitSlice = createSlice({
     clearPulls (state) {
       state.totalPulls = [];
     },
+    setPullRequests (state, action) {
+      state.pullRequests = action.payload.data;
+    },
+    clearPullRequests (state) {
+      state.pullRequests = [];
+    },
   }
 });
 
@@ -89,6 +96,8 @@ export const {
   clearComments,
   setPulls,
   clearPulls,
+  setPullRequests,
+  clearPullRequests,
 } = commitSlice.actions;
 
 export default commitSlice.reducer;

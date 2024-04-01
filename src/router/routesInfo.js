@@ -4,6 +4,7 @@ import Dashboard from '../containers/dashboard/Dashboard';
 import CommitActivity from '../containers/commit-activity';
 import ContributorActivity from '../containers/contributor-activity';
 import CommentActivity from '../containers/comment-activity';
+import ContributorRelation from '../containers/contributor-relation';
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     id: 'comment-activity',
     route: 'comment-activity',
     component: <CommentActivity />,
+  },
+  {
+    id: 'contributor-relation',
+    route: 'contributor-relation',
+    component: <ContributorRelation />,
   },
 ];
 
