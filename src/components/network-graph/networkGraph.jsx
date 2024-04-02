@@ -27,10 +27,12 @@ const drag = simulation => {
     .on("end", dragended);
 };
 
+
 function NetworkGraph(props) {
   const {
     pullRequests,
   } = props;
+
   const svgRef = useRef();
   const tooltipRef = useRef();
   const [graph, setGraph] = useState({ nodes: [], links: [] });
@@ -41,14 +43,14 @@ function NetworkGraph(props) {
 
     pullRequests.forEach(pr => {
         const author = pr.user.login; // PR author
-        contributors.add(author);
+        contributors.add({ reviewer: author, pullUrl: pr.pullUrl });
         pr.reviews.forEach(review => {
             const reviewer = review.user.login; // Reviewer
-            contributors.add(reviewer);
+            contributors.add({ reviewer, pullUrl: pr.pullUrl});
             graph.links.push({ source: reviewer, target: author });
         });
     });
-    graph.nodes = [...(contributors || [])].map(contributor => ({ id: contributor }));
+    graph.nodes = [...(contributors || [])].map(contributor => ({ id: contributor?.reviewer, pullUrl: contributor?.pullUrl }));
     return graph;
   };
 
@@ -65,7 +67,8 @@ function NetworkGraph(props) {
     const width = +svg.attr("width");
     const height = +svg.attr("height");
     const container = svg.select(".graph-content"); 
-    
+    const radius = 30;
+
     const zoomHandler = d3.zoom()
     .scaleExtent([0.5, 5])
     .on("zoom", (event) => {
@@ -104,6 +107,9 @@ function NetworkGraph(props) {
       })
       .on("mouseout", () => {
         tooltip.style("visibility", "hidden");
+      })
+      .on("click", (event, d) => {
+        window.open(d.pullUrl, "_blank");
       });
 
     simulation.on("tick", () => {
@@ -112,8 +118,8 @@ function NetworkGraph(props) {
           .attr("x2", d => d.target.x)
           .attr("y2", d => d.target.y);
 
-      node.attr("cx", d => d.x)
-          .attr("cy", d => d.y);
+      node.attr("cx", d => d.x = Math.max(radius, Math.min(width - radius, d.x)))  // Ensure nodes stay within horizontal bounds
+      .attr("cy", d => d.y = Math.max(radius, Math.min(height - radius, d.y)));
     });
 
     return () => {
@@ -123,7 +129,7 @@ function NetworkGraph(props) {
   return (
     <>
       <div className='graph-container'>
-        <svg ref={svgRef} width="960" height="600" >
+        <svg ref={svgRef} width="1400" height="650" >
           <g className="graph-content"></g>
         </svg>
       </div>

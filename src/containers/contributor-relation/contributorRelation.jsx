@@ -20,6 +20,7 @@ const ContributorRelation = () => {
 
   return(
     <div className="contributor-relation">
+      <h1 className="contributor-relation-heading">Some Relations between the Collaborators with the active pullRequests</h1>
       {pullRequests?.length ? <NetworkGraph pullRequests={pullRequests} /> : null}
     </div>
   );

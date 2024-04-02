@@ -12,6 +12,7 @@ const fetchPullRequests = async(filter, page=1) => {
     const reviewsResponse = await api.get(constructGitUrl(repoUrl, `pulls/${pr.number}/reviews`));
     const reviews = await reviewsResponse.json();
     pr.reviews = reviews;
+    pr.pullUrl = `${repoUrl}/pull/${pr?.number}`;
 }
   if(nextPageLink) {
     return [...result, ...await fetchPullRequests(filter, page + 1)];
