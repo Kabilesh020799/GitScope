@@ -9,4 +9,30 @@
     margin: 0;
     margin-top: 20px;
   }
+
+  &-content {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+    .content-head {
+      color: #8193b2;
+      margin-top: 20px;
+    }
+    .content-input {
+      width: 200px;
+      outline: none;
+      border: none;
+      font-size: 20px;
+      color: #8193b2;
+      margin-top: 1rem;
+      padding: 10px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+
+      &:active, &:focus {
+        border: 1px solid blue;
+      }
+    }
+  }
 }

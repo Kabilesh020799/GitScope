@@ -6,11 +6,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllCollaborators } from "./apiUtils";
 import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
 import BubbleChart from "../../components/bubble-chart";
+import { CircularProgress } from "@mui/material";
 
 const ContributorActivity = () => {
   const [year, ] = useState(2023);
   const [years, setYears] = useState([]);
   const [filteredCollabs, setFilteredCollabs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const { collaborators, totalCollaborators, createdYear } = useSelector( state => state.commitReducer );
@@ -33,17 +35,25 @@ const ContributorActivity = () => {
 
   useEffect(() => {
     if(!totalCollaborators) {
+      setLoading(true);
       getCollaborators()
       .then((res) => {
         if(res.status !== 403) {
           dispatch(addTotalCollaborators({data: res?.length}));
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
     }
     if(!createdYear) {
+      setLoading(true);
       getTotalCommits()
         .then((res) => {
           dispatch(addCreatedDate({data: res?.createdYear}));
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   }, []);
@@ -88,9 +98,21 @@ const ContributorActivity = () => {
       {/* <BubbleGraph
         data={filteredCollabs?.map((collaborator) => ({ ...collaborator?.author, contributions: collaborator?.total, weeks: collaborator?.commits, }))}
       /> */}
-      <BubbleChart
-        data={filteredCollabs?.map((collaborator) => ({ ...collaborator?.author, contributions: collaborator?.total, weeks: collaborator?.commits, }))}
-      />
+      {
+        loading ? (
+          <div style={{ height: 'calc(100% - 100px)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <CircularProgress />
+          </div>
+        ) : (
+          <BubbleChart
+            data={filteredCollabs?.map((collaborator) => ({ 
+              ...collaborator?.author,
+              contributions: collaborator?.total,
+              weeks: collaborator?.commits,
+            }))}
+          />
+        )
+        }
     </div>
   );
 };

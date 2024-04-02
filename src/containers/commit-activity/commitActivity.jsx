@@ -7,10 +7,12 @@ import { getTotalCommits } from "../dashboard/apiUtils";
 import './style.scss';
 import YearSelector from "../../components/year-selector";
 import { useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
 
 const CommitActivity = () => {
   const [year, setYear] = useState(2023);
   const [years, setYears] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { commits, createdYear } = useSelector((state) => state.commitReducer);
   const dispatch = useDispatch();
@@ -48,7 +50,10 @@ const CommitActivity = () => {
   }, [createdYear]);
 
   useEffect(() => {
-    getCommits();
+    setLoading(true);
+    getCommits().finally(() => {
+      setLoading(false);
+    });
     getTotalCommits()
       .then((res) => {
         dispatch(addCreatedDate({ data: res.createdYear }));
@@ -67,7 +72,11 @@ const CommitActivity = () => {
         </button>
       </div>
       <div className="commit-activity-graphs">
-        <Heatmap data={commits} />
+        {loading ? (
+          <div style={{ height: 'calc(100% - 100px)', width: '960px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <CircularProgress />
+          </div>
+        ): <Heatmap data={commits} />}
         <YearSelector
           years={years}
           selectedYear={year}

@@ -31,6 +31,7 @@ const drag = simulation => {
 function NetworkGraph(props) {
   const {
     pullRequests,
+    highlightedPrId,
   } = props;
 
   const svgRef = useRef();
@@ -95,11 +96,11 @@ function NetworkGraph(props) {
       .data(graph.nodes)
       .join("circle")
       .attr("r", 5)
-      .attr("fill", "blue")
+      .attr("fill", d => Number(d.pullUrl.split('/').at(-1)) == highlightedPrId ? "red" : "blue")
       .call(drag(simulation))
       .on("mouseover", (event, d) => {
         tooltip.style("visibility", "visible")
-               .text(d.id);
+               .text(`${d.id} - ${d.pullUrl}`);
       })
       .on("mousemove", (event) => {
         tooltip.style("top", (event.pageY - 10) + "px")
@@ -125,7 +126,8 @@ function NetworkGraph(props) {
     return () => {
       svg.selectAll("*").remove();
     };
-  }, [graph]);
+  }, [graph, highlightedPrId]);
+
   return (
     <>
       <div className='graph-container'>
