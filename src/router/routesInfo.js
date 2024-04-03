@@ -5,6 +5,7 @@ import CommitActivity from '../containers/commit-activity';
 import ContributorActivity from '../containers/contributor-activity';
 import CommentActivity from '../containers/comment-activity';
 import ContributorRelation from '../containers/contributor-relation';
+import UserContributions from '../containers/user-contributions';
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     route: 'contributor-relation',
     component: <ContributorRelation />,
   },
+  {
+    id: 'user-contribution',
+    route: 'user-contribution',
+    component: <UserContributions />,
+  }
 ];
 
 export default routes;

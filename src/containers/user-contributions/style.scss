@@ -1,0 +1,17 @@
+.user-contributions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+
+  &-dropdown {
+    width: 300px;
+    background: #1E202B;
+    color: #8193b2;
+  }
+  &-heading {
+    color: #8193b2;
+    text-align: center;
+  }
+}
