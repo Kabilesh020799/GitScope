@@ -6,6 +6,7 @@ import './style.scss';
 import { useDispatch, useSelector } from "react-redux";
 import { replaceCollaborators } from "../dashboard/reducer";
 import { getAllCollaborators } from "../contributor-activity/apiUtils";
+import { useNavigate } from "react-router-dom";
 
 const UserContributions = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,11 @@ const UserContributions = () => {
   const [dropdownValue, setDropdownValue] = useState('');
   const [radarData, setRadarData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const onClickDashboard = () => {
+    navigate('/dashboard');
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -52,7 +58,15 @@ const UserContributions = () => {
 
   return (
     <div className="user-contributions">
-      <h1 className="user-contributions-heading">Get to know about each User&apos;s contribution</h1>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '50px', marginBottom: '50px', marginTop: '30px' }}>
+        <h1 className="user-contributions-heading">Get to know about each User&apos;s contribution</h1>
+        <button
+          className="commit-activity-btn"
+          onClick={onClickDashboard}
+        >
+          Go to Dashboard
+        </button>
+      </div>
         <FormControl className="user-contributions-dropdown">
           <InputLabel id="demo-simple-select-label" style={{ color: '#8193b2' }}>Select User</InputLabel>
           <Select

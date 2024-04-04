@@ -11,7 +11,7 @@ const ContributorRelation = () => {
   const { 
     pullRequests,
   } = useSelector( state => state.commitReducer );
-  
+
   const dispatch = useDispatch();
   const [highlightedPrId, setHighlightedPrId] = useState(null);
   const [inputValue, setInputValue] = useState(null);
@@ -35,7 +35,7 @@ const ContributorRelation = () => {
 
   return(
     <div className="contributor-relation">
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '50px', marginBottom: '50px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '50px', marginBottom: '50px', marginTop: '30px' }}>
         <h1 className="contributor-relation-heading">Some Relations between the Collaborators with the active pullRequests</h1>
         <button
           className="commit-activity-btn"

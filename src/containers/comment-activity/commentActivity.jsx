@@ -7,12 +7,18 @@ import './style.scss';
 import YearSelector from '../../components/year-selector';
 import { getTotalCommits } from '../dashboard/apiUtils';
 import BarChart from '../../components/bar-chart';
+import { useNavigate } from 'react-router-dom';
 
 const CommentActivity = () => {
   const dispatch = useDispatch();
   const { comments, createdYear } = useSelector( state => state.commitReducer );
   const [year, setYear] = useState(2023);
   const [years, setYears] = useState([]);
+  const navigate = useNavigate();
+
+  const onClickDashboard = () => {
+    navigate('/dashboard');
+  };
 
   useEffect(() => {
     dispatch(setLoading());
@@ -48,7 +54,15 @@ const CommentActivity = () => {
 
   return (
     <div className='comment-activity'>
-      <div className="heading">Sentiment Analysis of the Commit Messages</div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '50px', marginBottom: '50px' }}>
+        <h1 className="heading">Sentiment Analysis of the Commit Messages</h1>
+        <button
+          className="commit-activity-btn"
+          onClick={onClickDashboard}
+        >
+          Go to Dashboard
+        </button>
+      </div>
       <div className="comment-activity-contents">
         <YearSelector
             years={years}
