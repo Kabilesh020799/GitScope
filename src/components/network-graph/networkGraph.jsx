@@ -38,18 +38,31 @@ function NetworkGraph(props) {
   const tooltipRef = useRef();
   const [graph, setGraph] = useState({ nodes: [], links: [] });
 
+  const hasObjectWithKey = (set, key, value) => {
+    for (let item of set) {
+      if (item[key] === value) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const buildGraph = (pullRequests) => {
     const graph = { nodes: [], links: [] };
     const contributors = new Set();
 
     pullRequests.forEach(pr => {
-        const author = pr.user.login; // PR author
+      const author = pr.user.login; // PR author
+      if(!hasObjectWithKey(contributors, "reviewer", author)) {
         contributors.add({ reviewer: author, pullUrl: pr.pullUrl });
-        pr.reviews.forEach(review => {
-            const reviewer = review.user.login; // Reviewer
-            contributors.add({ reviewer, pullUrl: pr.pullUrl});
-            graph.links.push({ source: reviewer, target: author });
-        });
+      }
+      pr.reviews.forEach(review => {
+        const reviewer = review.user.login; // Reviewer
+        if(!hasObjectWithKey(contributors, "reviewer", reviewer)) {
+          contributors.add({ reviewer, pullUrl: pr.pullUrl});
+        }
+        graph.links.push({ source: reviewer, target: author });
+      });
     });
     graph.nodes = [...(contributors || [])].map(contributor => ({ id: contributor?.reviewer, pullUrl: contributor?.pullUrl }));
     return graph;

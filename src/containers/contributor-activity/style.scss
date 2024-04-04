@@ -1,7 +1,11 @@
 .contributor-activity {
   height: 100vh;
-  
+
   .bubble-chart {
-    height: 100%;
+    height: calc(100% - 40px);
+  }
+  &-heading {
+    color: #8193b2;
+    text-align: center;
   }
 }

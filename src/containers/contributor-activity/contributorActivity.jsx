@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import './style.scss';
 import { addCreatedDate, addTotalCollaborators, replaceCollaborators } from "../dashboard/reducer";
 import { useDispatch, useSelector } from "react-redux";
-// import BubbleGraph from "../../components/bubble-graph";
 import { getAllCollaborators } from "./apiUtils";
 import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
 import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
 import './style.scss';
+import { useNavigate } from "react-router-dom";
 
 const ContributorActivity = () => {
   const [year, ] = useState(2023);
   const [years, setYears] = useState([]);
   const [filteredCollabs, setFilteredCollabs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const { collaborators, totalCollaborators, createdYear } = useSelector( state => state.commitReducer );
@@ -32,6 +33,10 @@ const ContributorActivity = () => {
       monthlyData[month].push(yearItem);
     });
     return monthlyData;
+  };
+
+  const onClickDashboard = () => {
+    navigate('/dashboard');
   };
 
   useEffect(() => {
@@ -96,9 +101,15 @@ const ContributorActivity = () => {
 
   return (
     <div className="contributor-activity">
-      {/* <BubbleGraph
-        data={filteredCollabs?.map((collaborator) => ({ ...collaborator?.author, contributions: collaborator?.total, weeks: collaborator?.commits, }))}
-      /> */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '50px' }}>
+        <h1 className="contributor-activity-heading">Picture of the user contributions to your project</h1>
+        <button
+          className="commit-activity-btn"
+          onClick={onClickDashboard}
+        >
+          Go to Dashboard
+        </button>
+      </div>
       {
         loading ? (
           <div style={{ height: 'calc(100% - 100px)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

@@ -5,15 +5,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPullRequests } from "../dashboard/reducer";
 import './style.scss';
 import { CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const ContributorRelation = () => {
   const { 
     pullRequests,
   } = useSelector( state => state.commitReducer );
+  
   const dispatch = useDispatch();
   const [highlightedPrId, setHighlightedPrId] = useState(null);
   const [inputValue, setInputValue] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const onClickDashboard = () => {
+    navigate('/dashboard');
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -28,7 +35,15 @@ const ContributorRelation = () => {
 
   return(
     <div className="contributor-relation">
-      <h1 className="contributor-relation-heading">Some Relations between the Collaborators with the active pullRequests</h1>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '50px', marginBottom: '50px' }}>
+        <h1 className="contributor-relation-heading">Some Relations between the Collaborators with the active pullRequests</h1>
+        <button
+          className="commit-activity-btn"
+          onClick={onClickDashboard}
+        >
+          Go to Dashboard
+        </button>
+      </div>
       <div className="contributor-relation-content">
         <span className="content-head">Please specify the pullRequest id you want to check</span>
         <input
