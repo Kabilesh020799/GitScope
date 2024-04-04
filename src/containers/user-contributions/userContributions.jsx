@@ -54,11 +54,11 @@ const UserContributions = () => {
     <div className="user-contributions">
       <h1 className="user-contributions-heading">Get to know about each User&apos;s contribution</h1>
         <FormControl className="user-contributions-dropdown">
-          <InputLabel id="demo-simple-select-label">Age</InputLabel>
+          <InputLabel id="demo-simple-select-label" style={{ color: '#8193b2' }}>Select User</InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            label="Age"
+            label="Select User"
             onChange={onSelectDropdown}
             value={dropdownValue}
             style={{ color: '#8193b2' }}
@@ -68,6 +68,7 @@ const UserContributions = () => {
             ))}
           </Select>
         </FormControl>
+        { dropdownValue ? <span style={{ color: '#8193b2' }}>Blue Line indicates the user contribution</span> : null }
       { loading ? (
         <div style={{ height: 'calc(100% - 100px)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <CircularProgress />

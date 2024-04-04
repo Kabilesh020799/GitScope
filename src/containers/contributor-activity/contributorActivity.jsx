@@ -7,6 +7,7 @@ import { getAllCollaborators } from "./apiUtils";
 import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
 import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
+import './style.scss';
 
 const ContributorActivity = () => {
   const [year, ] = useState(2023);
