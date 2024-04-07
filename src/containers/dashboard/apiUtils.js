@@ -22,50 +22,53 @@ const getCollab = async(filter) => {
 
 // get total commits infor for the repo
 const getTotalCommits = async() => {
-  const result = await getCommits();
-  const resultLink = result.headers.get('Link').split(',');
-  const lastPageLink = resultLink.find((resultItem) => resultItem.includes('rel="last"'));
+  let result = await getCommits();
+  const resultLink = result.headers.get('Link')?.split(',');
+  const lastPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="last"'));
   if(lastPageLink) {
     const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
     let lastPageCommits = await getCommits(`page=${lastPage}`);
     lastPageCommits = await lastPageCommits.json();
     return ({ length: lastPageCommits.length + 100 * (lastPage - 1), createdYear: lastPageCommits?.[lastPageCommits?.length - 1]?.commit?.author?.date });
   }
+  result = await result.json();
   return ({ length: result?.length, createdYear: result?.[result?.length - 1]?.commit?.author?.date  });
 };
 
 // get total pull requests infor for the repo
 const getTotalPullRequests = async() => {
-  const result = await getPulls();
-  const resultLink = result.headers.get('Link').split(',');
-  const lastPageLink = resultLink.find((resultItem) => resultItem.includes('rel="last"'));
+  let result = await getPulls();
+  const resultLink = result.headers.get('Link')?.split(',');
+  const lastPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="last"'));
   if(lastPageLink) {
     const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
     let lastPageCommits = await getPulls(`page=${lastPage}`);
     lastPageCommits = await lastPageCommits.json();
     return ({ length: lastPageCommits.length + 100 * (lastPage - 1) });
   }
+  result = await result.json();
   return ({ length: result?.length });
 };
 
 // getting collaborators info of the repo
 const getCollaborators = async() => {
-  const result = await getCollab();
-  const resultLink = result.headers.get('Link').split(',');
-  const lastPageLink = resultLink.find((resultItem) => resultItem.includes('rel="last"'));
+  let result = await getCollab();
+  const resultLink = result.headers?.get('Link')?.split(',');
+  const lastPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="last"'));
   if(lastPageLink) {
     const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
     let lastPageCommits = await getCollab(`page=${lastPage}`);
     lastPageCommits = await lastPageCommits.json();
     return ({ length: lastPageCommits?.length + 100 * (lastPage - 1), });
   }
+  result = await result.json();
   return ({ length: result?.length });
 };
 
 const getUserLocation = async(filter, page=1) => {
   let result = await api.get(constructGitUrl(repoUrl, `contributors?per_page=100&${filter ? `${filter}` : ''}&page=${page}`));
-  const resultLink = result.headers.get('Link').split(',');
-  const nextPageLink = resultLink.find((resultItem) => resultItem.includes('rel="next"'));
+  const resultLink = result.headers.get('Link')?.split(',');
+  const nextPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="next"'));
   result = await result.json();
   if(nextPageLink) {
     return [...result, ...await getUserLocation(filter, page + 1)];

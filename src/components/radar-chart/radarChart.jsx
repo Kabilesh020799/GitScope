@@ -5,7 +5,7 @@ const RadarChart = (props) => {
   const {
     data,
   } = props;
-console.log(data);
+
   useEffect(() => {
     const width = 500, height = 500;
     const margin = {top: 50, right: 80, bottom: 50, left: 80},

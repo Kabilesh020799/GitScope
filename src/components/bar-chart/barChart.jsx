@@ -9,7 +9,7 @@ const BarChart = (props) => {
 
   const dataEntries = Object.entries(data || {});
   const sortedEntries = dataEntries.sort((a, b) => b[1] - a[1])?.slice(0, 10);
-console.log(sortedEntries, classKey);
+
   useEffect(() => {
    // Set the dimensions and margins of the graph
   const margin = {top: 30, right: 30, bottom: 70, left: 60},

@@ -23,8 +23,8 @@ const getAllComments = async(props) => {
   let extractNegativeWords = nW || {};
 
   let result = await api.get(constructGitUrl(repoUrl, `issues/comments?per_page=100&since=${startDate.toISOString()}&page=${page}`));
-  const resultLink = result.headers.get('Link').split(',');
-  const nextPageLink = resultLink.find((resultItem) => resultItem.includes('rel="next"'));
+  const resultLink = result.headers.get('Link')?.split(',');
+  const nextPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="next"'));
   result = await result.json();
   const filteredResult = result?.filter((resultItem) => new Date(resultItem?.created_at).getFullYear() === year);
   filteredResult?.forEach((item) => {

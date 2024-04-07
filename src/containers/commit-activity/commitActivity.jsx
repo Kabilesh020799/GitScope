@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 
 const CommitActivity = () => {
-  const [year, setYear] = useState(2023);
+  const [year, setYear] = useState(2024);
   const [years, setYears] = useState([]);
   const [loading, setLoading] = useState(false);
 
