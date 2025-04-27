@@ -12,9 +12,10 @@ import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
 import "./style.scss";
 import { useNavigate } from "react-router-dom";
+import YearSelector from "../../components/year-selector";
 
 const ContributorActivity = () => {
-  const [year] = useState(new Date().getFullYear());
+  const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
   const [filteredCollabs, setFilteredCollabs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,10 @@ const ContributorActivity = () => {
       monthlyData[month].push(yearItem);
     });
     return monthlyData;
+  };
+
+  const onSelectYear = (selectedYear) => {
+    setYear(selectedYear);
   };
 
   const onClickDashboard = () => {
@@ -126,6 +131,11 @@ const ContributorActivity = () => {
           Go to Dashboard
         </button>
       </div>
+      <YearSelector
+        years={years.reverse()}
+        selectedYear={year}
+        onSelectYear={onSelectYear}
+      />
       {loading ? (
         <div
           style={{
