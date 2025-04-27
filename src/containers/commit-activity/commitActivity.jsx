@@ -15,6 +15,7 @@ const CommitActivity = () => {
   const [loading, setLoading] = useState(false);
 
   const { commits, createdYear } = useSelector((state) => state.commitReducer);
+  const { repoUrl } = useSelector((state) => state.loginReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -70,7 +71,20 @@ const CommitActivity = () => {
       <div className="commit-activity-wrapper">
         <div className="commit-activity-header-section">
           <header className="commit-activity-header">
-            Commit history of the repo for
+            <div>
+              Commit history of the repo for
+              <span
+                style={{
+                  color: "#1d4ed8",
+                }}
+              >
+                {" "}
+                {repoUrl}
+              </span>
+            </div>
+            <button className="commit-activity-btn" onClick={onClickDashboard}>
+              Go to Dashboard
+            </button>
           </header>
           <YearSelector
             years={years}
@@ -78,10 +92,6 @@ const CommitActivity = () => {
             onSelectYear={onSelectYear}
           />
         </div>
-
-        <button className="commit-activity-btn" onClick={onClickDashboard}>
-          Go to Dashboard
-        </button>
       </div>
 
       <div className="commit-activity-graphs">
