@@ -1,39 +1,70 @@
-.commit-activity { 
+.commit-activity {
   display: flex;
-  align-items: center;
-  height: 100vh;
-  justify-content: center;
-  gap: 2rem;
   flex-direction: column;
-  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #0f172a;
 
-  &-header {
-    color: #8193b2;
-    font-size: 30px;
-    text-transform: capitalize;
-    text-align: center;
-    flex: 1;
-    font-weight: bold;
-  }
-
-  &-graphs {
+  .commit-activity-wrapper {
     display: flex;
-  }
-
-  &-wrapper {
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    width:  calc(100% - 10rem);
-    padding: 0rem 10rem;
-    margin-bottom: 4rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 2rem auto;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
-  &-btn {
-    outline: none;
+  .commit-activity-header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .commit-activity-header {
+    color: #cbd5e1;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  .commit-activity-graphs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .commit-activity-loading {
+    height: 400px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .no-commits-text {
+    font-size: 18px;
+    color: #8193b2;
+    margin-top: 2rem;
+  }
+
+  .commit-activity-btn {
+    padding: 12px 20px;
+    background-color: #1d4ed8;
+    color: white;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 20px;
-    background-color: #1F6EEB;
-    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #2563eb;
+    }
   }
 }

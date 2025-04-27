@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Heatmap from "../../components/heatmap";
 import { addCreatedDate, replaceCommits } from "../dashboard/reducer";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,25 +18,25 @@ const CommitActivity = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // getting commits of the repo from github
-  const getCommits = async () => {
-    let result = await getAllCommits(
-      `&since=${new Date(year, 0, 1)}&until=${new Date(
-        year,
-        11,
-        31,
-        23,
-        59,
-        0,
-        0
-      )}`
-    );
-    if (result.length) {
-      dispatch(replaceCommits({ data: result }));
+  const getCommits = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await getAllCommits(
+        `&since=${new Date(year, 0, 1)}&until=${new Date(
+          year,
+          11,
+          31,
+          23,
+          59,
+          59
+        )}`
+      );
+      dispatch(replaceCommits({ data: result.length ? result : [] }));
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [year, dispatch]);
 
-  // onchange dropdown
   const onSelectYear = (selectedYear) => {
     setYear(selectedYear);
   };
@@ -45,61 +45,55 @@ const CommitActivity = () => {
     navigate("/dashboard");
   };
 
-  // useEffects block
   useEffect(() => {
     if (createdYear) {
       const firstYear = new Date(createdYear).getFullYear();
       const endYear = new Date().getFullYear();
-      for (let year = firstYear; year <= endYear; year++) {
-        if (!years.includes(year)) {
-          setYears((prevState) => [...prevState, year]);
-        }
+      const generatedYears = [];
+      for (let y = endYear; y >= firstYear; y--) {
+        generatedYears.push(y);
       }
+      setYears(generatedYears);
     }
     return () => setYears([]);
   }, [createdYear]);
 
   useEffect(() => {
-    setLoading(true);
-    getCommits().finally(() => {
-      setLoading(false);
-    });
+    getCommits();
     getTotalCommits().then((res) => {
       dispatch(addCreatedDate({ data: res.createdYear }));
     });
-  }, [year]);
+  }, [year, getCommits, dispatch]);
 
   return (
     <div className="commit-activity">
       <div className="commit-activity-wrapper">
-        <header className="commit-activity-header">
-          Commit history of the repo for the year {year}
-        </header>
+        <div className="commit-activity-header-section">
+          <header className="commit-activity-header">
+            Commit history of the repo for
+          </header>
+          <YearSelector
+            years={years}
+            selectedYear={year}
+            onSelectYear={onSelectYear}
+          />
+        </div>
+
         <button className="commit-activity-btn" onClick={onClickDashboard}>
           Go to Dashboard
         </button>
       </div>
+
       <div className="commit-activity-graphs">
         {loading ? (
-          <div
-            style={{
-              height: "calc(100% - 100px)",
-              width: "960px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <CircularProgress />
+          <div className="commit-activity-loading">
+            <CircularProgress size={60} />
           </div>
-        ) : (
+        ) : commits.length > 0 ? (
           <Heatmap data={commits} />
+        ) : (
+          <div className="no-commits-text">No Commits Found For {year}</div>
         )}
-        <YearSelector
-          years={years}
-          selectedYear={year}
-          onSelectYear={onSelectYear}
-        />
       </div>
     </div>
   );

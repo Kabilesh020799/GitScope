@@ -102,7 +102,7 @@ const Heatmap = ({ data, margin }) => {
         const pageHeight = window.innerHeight;
 
         let xPos = event.pageX - 400;
-        let yPos = event.pageY - 250;
+        let yPos = event.pageY - 150;
 
         if (xPos + tooltipWidth > pageWidth) {
           xPos = event.pageX - tooltipWidth - 15;

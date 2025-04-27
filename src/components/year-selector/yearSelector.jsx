@@ -1,25 +1,20 @@
 import React from "react";
-import './style.scss';
+import "./style.scss";
 
-const YearSelector = (props) => {
-  const {
-    years,
-    selectedYear,
-    onSelectYear,
-  } = props;
-
+const YearSelector = ({ years, selectedYear, onSelectYear }) => {
   return (
     <div className="year-selector">
-      {years?.map((yearItem) => (
+      {years.map((yearItem) => (
         <div
-          key={yearItem.toString()}
+          key={yearItem}
           onClick={() => onSelectYear(yearItem)}
-          className={`year-selector-item ${selectedYear === yearItem ? 'focus' : ''}`}
+          className={`year-selector-item ${
+            selectedYear === yearItem ? "selected" : ""
+          }`}
         >
           {yearItem}
         </div>
-      ))
-      }
+      ))}
     </div>
   );
 };
