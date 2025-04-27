@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./style.scss";
 import {
   addCreatedDate,
@@ -10,14 +10,12 @@ import { getAllCollaborators } from "./apiUtils";
 import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
 import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
-import "./style.scss";
 import { useNavigate } from "react-router-dom";
 import YearSelector from "../../components/year-selector";
 
 const ContributorActivity = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
-  const [filteredCollabs, setFilteredCollabs] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -25,8 +23,6 @@ const ContributorActivity = () => {
   const { collaborators, totalCollaborators, createdYear } = useSelector(
     (state) => state.commitReducer
   );
-
-  // filter commits for the year
   const filterYear = (weeks) => {
     const filteredYear = weeks?.filter(
       (week) => new Date(week?.w * 1000).getFullYear() === year
@@ -36,13 +32,20 @@ const ContributorActivity = () => {
     filteredYear?.forEach((yearItem) => {
       const date = new Date(yearItem?.w * 1000);
       const month = date.getMonth() + 1;
-      if (!monthlyData[month]) {
-        monthlyData[month] = [];
-      }
+      if (!monthlyData[month]) monthlyData[month] = [];
       monthlyData[month].push(yearItem);
     });
     return monthlyData;
   };
+
+  // Memoized filtered collaborators based on year
+  const filteredCollabs = useMemo(() => {
+    if (!collaborators?.length) return [];
+    return collaborators.map((collaborator) => ({
+      ...collaborator,
+      commits: filterYear(collaborator?.weeks),
+    }));
+  }, [collaborators, year]);
 
   const onSelectYear = (selectedYear) => {
     setYear(selectedYear);
@@ -53,103 +56,72 @@ const ContributorActivity = () => {
   };
 
   useEffect(() => {
-    if (!totalCollaborators) {
-      setLoading(true);
-      getCollaborators()
-        .then((res) => {
-          if (res.status !== 403) {
-            dispatch(addTotalCollaborators({ data: res?.length }));
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        if (!totalCollaborators) {
+          const collabRes = await getCollaborators();
+          if (collabRes?.status !== 403) {
+            dispatch(addTotalCollaborators({ data: collabRes?.length }));
           }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-    if (!createdYear) {
-      setLoading(true);
-      getTotalCommits()
-        .then((res) => {
-          dispatch(addCreatedDate({ data: res?.createdYear }));
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, []);
+        }
+        if (!createdYear) {
+          const commitRes = await getTotalCommits();
+          dispatch(addCreatedDate({ data: commitRes?.createdYear }));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadInitialData();
+  }, [dispatch, totalCollaborators, createdYear]);
 
   useEffect(() => {
-    if (!collaborators?.length && !!totalCollaborators) {
+    if (totalCollaborators && !collaborators.length) {
       getAllCollaborators(Math.ceil(totalCollaborators / 100)).then((res) => {
-        if (res.status !== 403) {
+        if (res?.status !== 403) {
           dispatch(replaceCollaborators({ data: res }));
         }
       });
     }
-  }, [totalCollaborators]);
-
-  useEffect(() => {
-    if (collaborators?.length) {
-      collaborators?.forEach((collaborator) => {
-        setFilteredCollabs((prevState) => [
-          ...prevState,
-          { ...collaborator, commits: filterYear(collaborator?.weeks) },
-        ]);
-      });
-    }
-
-    return () => setFilteredCollabs([]);
-  }, [collaborators]);
+  }, [totalCollaborators, collaborators.length, dispatch]);
 
   useEffect(() => {
     if (createdYear) {
       const firstYear = new Date(createdYear).getFullYear();
       const endYear = new Date().getFullYear();
-      for (let year = firstYear; year <= endYear; year++) {
-        if (!years.includes(year)) {
-          setYears((prevState) => [...prevState, year]);
-        }
+      const generatedYears = [];
+      for (let y = endYear; y >= firstYear; y--) {
+        generatedYears.push(y);
       }
+      setYears(generatedYears);
     }
-
-    return () => setYears([]);
   }, [createdYear]);
 
   return (
     <div className="contributor-activity">
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "50px",
-        }}
-      >
+      <div className="contributor-activity-header">
         <h1 className="contributor-activity-heading">
           Picture of the user contributions to your project
         </h1>
-        <button className="commit-activity-btn" onClick={onClickDashboard}>
+        <button className="contributor-activity-btn" onClick={onClickDashboard}>
           Go to Dashboard
         </button>
       </div>
+
       <YearSelector
-        years={years.reverse()}
+        years={years}
         selectedYear={year}
         onSelectYear={onSelectYear}
       />
+
       {loading ? (
-        <div
-          style={{
-            height: "calc(100% - 100px)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <div className="contributor-activity-loading">
           <CircularProgress />
         </div>
       ) : (
         <BubbleChart
-          data={filteredCollabs?.map((collaborator) => ({
+          data={filteredCollabs.map((collaborator) => ({
             ...collaborator?.author,
             contributions: collaborator?.total,
             weeks: collaborator?.commits,
