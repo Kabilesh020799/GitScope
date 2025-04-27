@@ -4,18 +4,15 @@ const setStorage = (key, value) => {
 };
 
 const getStorage = (key) => {
-  return(JSON.parse(localStorage.getItem(key)));
+  return JSON.parse(localStorage.getItem(key));
 };
 
 const constructGitUrl = (repoUrl, key) => {
-  const repoList = repoUrl.split('/');
+  console.log(repoUrl);
+  const repoList = repoUrl.split("/");
   const user = repoList?.[3];
   const repoName = repoList?.[4];
-  return `${user}/${repoName}/${key ? key : ''}`;
+  return `${user}/${repoName}/${key ? key : ""}`;
 };
 
-export {
-  setStorage,
-  getStorage,
-  constructGitUrl,
-};
+export { setStorage, getStorage, constructGitUrl };

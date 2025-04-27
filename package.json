@@ -5,7 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.7",
+    "@mui/material": "^5.15.9",
     "@reduxjs/toolkit": "^2.2.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -15,9 +15,9 @@
     "d3": "^7.8.5",
     "d3-cloud": "^1.2.7",
     "dotenv": "^16.4.3",
+    "framer-motion": "^12.9.2",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.3",
-    "node-sass": "^7.0.3",
     "octokit": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,6 +25,7 @@
     "react-router-dom": "^6.22.0",
     "react-scripts": "5.0.1",
     "redux": "^5.0.1",
+    "sass": "^1.87.0",
     "sort-by": "^1.2.0",
     "web-vitals": "^2.1.4"
   },
