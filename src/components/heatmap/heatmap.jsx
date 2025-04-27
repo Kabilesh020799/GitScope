@@ -10,7 +10,6 @@ const Heatmap = ({ data, margin }) => {
   const [showModal, setShowModal] = useState(false);
   const [expandedMessages, setExpandedMessages] = useState({});
 
-  // Prepare data to create a full month-day grid
   const convertCommitsToObject = (commits) => {
     const commitCounts = {};
 
@@ -48,13 +47,14 @@ const Heatmap = ({ data, margin }) => {
 
     d3.select("#my_dataviz").html("");
 
-    const width = 1000 - margin.left - margin.right;
+    const totalWidth = Math.min(window.innerWidth - 60, 1000);
+    const width = totalWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     const svg = d3
       .select("#my_dataviz")
       .append("svg")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", totalWidth)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -88,6 +88,7 @@ const Heatmap = ({ data, margin }) => {
       .attr("height", y.bandwidth())
       .style("fill", (d) => (d.value ? colorScale(d.value) : "#2A3441"))
       .style("opacity", 0)
+      .style("cursor", "pointer")
       .on("mouseover", (event, d) => {
         d3.select("#tooltip").style("visibility", "visible")
           .html(`<div style="text-align:center; font-weight:500;">

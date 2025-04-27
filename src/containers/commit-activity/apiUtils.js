@@ -36,7 +36,14 @@ const getAllCommits = async (filter) => {
             `commits?per_page=100&${filter ? `${filter}` : ""}&page=${page}`
           )
         )
-        .then((res) => res.json())
+        .then(async (res) => {
+          if (res.ok) {
+            return await res.json();
+          } else {
+            console.error(`Error fetching page ${page}`, res.status);
+            return [];
+          }
+        })
     );
   }
 
