@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import { dates, months } from "./constants";
 import "./style.scss";
 
 const Heatmap = ({ data, margin }) => {
-  const [processedData, setProcessedData] = useState([]);
   const [selectedDayCommits, setSelectedDayCommits] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [expandedMessages, setExpandedMessages] = useState({});
 
-  const convertCommitsToObject = (commits) => {
+  const processedData = useMemo(() => {
+    if (!data.length) return [];
     const commitCounts = {};
 
-    commits.forEach((commit) => {
+    data.forEach((commit) => {
       const date = new Date(commit?.commit?.author?.date);
       const month = date.toLocaleString("default", { month: "short" });
       const day = date.getDate();
@@ -34,12 +34,6 @@ const Heatmap = ({ data, margin }) => {
     });
 
     return fullGrid;
-  };
-
-  useEffect(() => {
-    if (data.length) {
-      setProcessedData(convertCommitsToObject(data));
-    }
   }, [data]);
 
   useEffect(() => {
@@ -155,7 +149,7 @@ const Heatmap = ({ data, margin }) => {
       [index]: !prev[index],
     }));
   };
-  console.log(data);
+
   return (
     <div className="heatmap-container">
       {!data.length ? (
