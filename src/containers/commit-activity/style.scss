@@ -22,6 +22,40 @@
     align-items: center;
     gap: 1rem;
     width: 100%;
+    .contributor-chips-container {
+      width: 100%;
+      max-width: 1000px;
+      overflow-x: auto;
+      padding: 10px 0;
+      margin: 20px 0;
+    }
+
+    .contributor-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .chip {
+      background-color: #1e293b;
+      color: #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: #334155;
+      }
+
+      &.active {
+        background-color: #2563eb;
+        color: white;
+      }
+    }
   }
 
   &-header {

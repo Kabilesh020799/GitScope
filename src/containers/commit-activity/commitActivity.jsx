@@ -13,6 +13,7 @@ const CommitActivity = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedContributor, setSelectedContributor] = useState("All");
 
   const { commits, createdYear } = useSelector((state) => state.commitReducer);
   const { repoUrl } = useSelector((state) => state.loginReducer);
@@ -91,6 +92,28 @@ const CommitActivity = () => {
             selectedYear={year}
             onSelectYear={onSelectYear}
           />
+          <div className="contributor-chips-container">
+            <div className="contributor-chips">
+              {[
+                "All",
+                ...Array.from(
+                  new Set(
+                    commits.map((c) => c.commit.author.name).filter(Boolean)
+                  )
+                ),
+              ].map((name) => (
+                <div
+                  key={name}
+                  className={`chip ${
+                    selectedContributor === name ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedContributor(name)}
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -100,7 +123,15 @@ const CommitActivity = () => {
             <CircularProgress size={60} />
           </div>
         ) : commits.length > 0 ? (
-          <Heatmap data={commits} />
+          <Heatmap
+            data={
+              selectedContributor === "All"
+                ? commits
+                : commits.filter(
+                    (c) => c.commit.author.name === selectedContributor
+                  )
+            }
+          />
         ) : (
           <div className="no-commits-text">No Commits Found For {year}</div>
         )}
