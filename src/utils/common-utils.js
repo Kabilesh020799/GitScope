@@ -8,7 +8,10 @@ const getStorage = (key) => {
 };
 
 const constructGitUrl = (repoUrl, key) => {
-  console.log(repoUrl);
+  if (!repoUrl) {
+    console.error("Repo URL is not available!");
+    return "";
+  }
   const repoList = repoUrl.split("/");
   const user = repoList?.[3];
   const repoName = repoList?.[4];

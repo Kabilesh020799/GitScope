@@ -1,5 +1,4 @@
-import commitReducer from '../containers/dashboard/reducer';
+import commitReducer from "../containers/dashboard/reducer";
+import loginReducer from "../containers/login/reducer";
 
-export {
-  commitReducer,
-};
+export { commitReducer, loginReducer };

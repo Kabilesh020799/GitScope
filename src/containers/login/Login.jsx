@@ -1,52 +1,61 @@
-import React, { useState } from 'react';
-import LoginBackground from './components/login-background';
-import TypeAnimation from '../../components/type-animation';
+import React, { useState } from "react";
+import LoginBackground from "./components/login-background";
+import TypeAnimation from "../../components/type-animation";
+import { useDispatch } from "react-redux";
 
-import './style.scss';
-import { useNavigate } from 'react-router-dom';
-import { setStorage } from '../../utils/common-utils';
+import "./style.scss";
+import { useNavigate } from "react-router-dom";
+import { setStorage } from "../../utils/common-utils";
+import { addRepoUrl } from "./reducer";
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
-  const [repo, setRepo] = useState('');
+  const [repo, setRepo] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const welcomeText = "Welcome to GitScope! \n Let\'s begin by entering your repository name";
+  const welcomeText =
+    "Welcome to GitScope! \n Let's begin by entering your repository name";
 
   // user defined functions
-  const onContinue = async() => {
-    if(repo) {
-      setStorage('repo-url', repo);
-      navigate('/dashboard');
+  const onContinue = async () => {
+    if (repo) {
+      setStorage("repo-url", repo);
+      dispatch(addRepoUrl({ data: repo }));
+      navigate("/dashboard");
     }
   };
 
   return (
-    <div className='login-container'>
-      <div style={{ zIndex: 1, position: 'absolute' }}><LoginBackground /></div>
-      <div style={{ zIndex: 10, position: 'relative' }} className='login-container-body'>
+    <div className="login-container">
+      <div style={{ zIndex: 1, position: "absolute" }}>
+        <LoginBackground />
+      </div>
+      <div
+        style={{ zIndex: 10, position: "relative" }}
+        className="login-container-body"
+      >
         <div className="text-container">
-          <TypeAnimation text={welcomeText} color="#8193b2" onDone={ () => setIsTypeDone(true) }/>
-            {
-              isTypeDone ? (
-                <div className="repo-name">
-                  Enter the repository name*
-                  <div className='repo-name-wrapper'>
-                    <input
-                      className='repo-name-wrapper-input'
-                      onChange={(e) => setRepo(e.target.value)}
-                      value={repo}
-                    />
-                    <button
-                      className='repo-name-wrapper-btn'
-                      onClick={onContinue}
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </div>
-              ) : null
-            }
+          <TypeAnimation
+            text={welcomeText}
+            color="#8193b2"
+            onDone={() => setIsTypeDone(true)}
+          />
+          {isTypeDone ? (
+            <div className="repo-name">
+              Enter the repository name*
+              <div className="repo-name-wrapper">
+                <input
+                  className="repo-name-wrapper-input"
+                  onChange={(e) => setRepo(e.target.value)}
+                  value={repo}
+                />
+                <button className="repo-name-wrapper-btn" onClick={onContinue}>
+                  Continue
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -54,4 +63,3 @@ const Login = () => {
 };
 
 export default Login;
-

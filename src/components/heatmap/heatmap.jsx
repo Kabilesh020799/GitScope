@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from "react";
-import * as d3 from 'd3';
+import * as d3 from "d3";
 import { dates, months } from "./constants";
-import './style.scss';
+import "./style.scss";
 
 const Heatmap = (props) => {
-  const {
-    margin,
-    data,
-  } = props;
+  const { margin, data } = props;
 
   const [emptyData, setEmptyData] = useState([]);
   const [convertData, setConvertedData] = useState([]);
 
   const findMissingValues = () => {
     months.forEach((month) => {
-      if(convertData.findIndex((dataItem) => dataItem.group === month) === -1) {
+      if (
+        convertData.findIndex((dataItem) => dataItem.group === month) === -1
+      ) {
         dates.forEach((date) => {
-          setEmptyData((prevState) => ([...prevState, { group: month, variable: date }]));
+          setEmptyData((prevState) => [
+            ...prevState,
+            { group: month, variable: date },
+          ]);
         });
       } else {
         const filteredDates = convertData.filter((cD) => cD.group === month);
         dates.forEach((date) => {
-          if(filteredDates?.findIndex((fD) => fD.variable === date) === -1) { 
-            setEmptyData((prevState) => ([...prevState, { group: month, variable: date }]));
+          if (filteredDates?.findIndex((fD) => fD.variable === date) === -1) {
+            setEmptyData((prevState) => [
+              ...prevState,
+              { group: month, variable: date },
+            ]);
           }
         });
       }
@@ -34,7 +39,7 @@ const Heatmap = (props) => {
   }, [data]);
 
   useEffect(() => {
-    if(convertData?.length) {
+    if (convertData?.length) {
       setEmptyData([]);
       findMissingValues();
     }
@@ -42,104 +47,107 @@ const Heatmap = (props) => {
 
   useEffect(() => {
     const heat = () => {
-      d3.select('#my_dataviz').html('');
+      d3.select("#my_dataviz").html("");
       // set the dimensions and margins of the graph
       const width = 1000 - margin.left - margin.right;
       const height = 400 - margin.top - margin.bottom;
-    
+
       // append the svg object to the body of the page
-      var svg = d3.select("#my_dataviz")
+      var svg = d3
+        .select("#my_dataviz")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-      // Build X scales and axis:
-      var x = d3.scaleBand()
-        .range([0, width])
-        .domain(dates)
-        .padding(0.01);
 
-      svg.append("g")
+      // Build X scales and axis:
+      var x = d3.scaleBand().range([0, width]).domain(dates).padding(0.01);
+
+      svg
+        .append("g")
         .attr("transform", "translate(0," + height + ")")
-        .style('color', '#8193b2')
+        .style("color", "#8193b2")
         .call(d3.axisBottom(x));
 
       // Build Y scales and axis:
-      var y = d3.scaleBand()
-        .range([height, 0])
-        .domain(months)
-        .padding(0.01);
-      svg.append("g")
-        .style('color', '#8193b2')
-        .call(d3.axisLeft(y));
-    
+      var y = d3.scaleBand().range([height, 0]).domain(months).padding(0.01);
+      svg.append("g").style("color", "#8193b2").call(d3.axisLeft(y));
+
       // Build color scale
-      var myColor = d3.scaleLinear()
-        .range(["#0D4429", "#39D353" ])
+      var myColor = d3
+        .scaleLinear()
+        .range(["#0D4429", "#39D353"])
         .domain([1, 100]);
-    
+
       // Read the data
       const dataArr = convertData;
       // create a tooltip
-      var tooltip = d3.select(".heatmap")
-          .append("div")
-          .style("opacity", 0)
-          .attr("class", "tooltip")
-          .style("background-color", "#8193b2")
-          .style("border", "solid")
-          .style("border-width", "2px")
-          .style("border-radius", "5px")
-          .style("padding", "5px");
-    
-      var mouseover = function() {
-        tooltip
-          .style("opacity", 1)
-          .style("visibility", "visible");
-      };
-          
-      var mousemove = function(event, d) {
-        console.log(d);
-        tooltip
-          .html("The total number of commits is: " + (d.value || 0))
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 20) + "px");
-      };
-          
-      var mouseleave = function() {
-        tooltip
-          .style("opacity", 0)
-          .style("visibility", "hidden");
+      var tooltip = d3
+        .select(".heatmap")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "#8193b2")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px");
+
+      var mouseover = function () {
+        tooltip.style("opacity", 1).style("visibility", "visible");
       };
 
-      svg.selectAll("rect")
+      var mousemove = function (event, d) {
+        tooltip
+          .html("The total number of commits is: " + (d.value || 0))
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY - 20 + "px");
+      };
+
+      var mouseleave = function () {
+        tooltip.style("opacity", 0).style("visibility", "hidden");
+      };
+
+      svg
+        .selectAll("rect")
         .data([...dataArr, ...emptyData])
         .enter()
         .append("rect")
-        .attr("x", function(d) { return x(d.variable); })
-        .attr("y", function(d) { return y(d.group); })
+        .attr("x", function (d) {
+          return x(d.variable);
+        })
+        .attr("y", function (d) {
+          return y(d.group);
+        })
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .style("fill", function(d) { return d.value ? myColor(d.value) : "#2A3441"; }) // Use a fallback color when there is no data
+        .style("fill", function (d) {
+          return d.value ? myColor(d.value) : "#2A3441";
+        }) // Use a fallback color when there is no data
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave);
-        // add the squares
-        svg.selectAll()
-          .data([...dataArr, ...emptyData])
-          .enter()
-          .append("rect")
-          .attr("x", function(d) { return x(d.variable); })
-          .attr("y", function(d) { return y(d.group); })
-          .attr("width", x.bandwidth())
-          .attr("height", y.bandwidth())
-          .style("fill", function(d) {
-            return d.value ? myColor(d.value) : "rgb(42 52 65)"; }
-            )
-          .on("mouseover", mouseover)
-          .on("mousemove", mousemove)
-          .on("mouseleave", mouseleave);
+      // add the squares
+      svg
+        .selectAll()
+        .data([...dataArr, ...emptyData])
+        .enter()
+        .append("rect")
+        .attr("x", function (d) {
+          return x(d.variable);
+        })
+        .attr("y", function (d) {
+          return y(d.group);
+        })
+        .attr("width", x.bandwidth())
+        .attr("height", y.bandwidth())
+        .style("fill", function (d) {
+          return d.value ? myColor(d.value) : "rgb(42 52 65)";
+        })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
     };
     heat();
   }, [convertData, emptyData]);
@@ -149,29 +157,24 @@ const Heatmap = (props) => {
 
     commits.forEach((commit) => {
       const date = new Date(commit.commit.author.date);
-      const month = date.toLocaleString('default', { month: 'short' });
+      const month = date.toLocaleString("default", { month: "short" });
       const day = date.getDate();
       const key = `${month}-${day}`;
       if (!commitCounts[key]) {
         commitCounts[key] = 0;
       }
-  
+
       commitCounts[key]++;
     });
 
     return Object.keys(commitCounts).map((key) => ({
-      group: key.split('-')[0], // month name
-      variable: key.split('-')[1], // day of the month
+      group: key.split("-")[0], // month name
+      variable: key.split("-")[1], // day of the month
       value: commitCounts[key].toString(), // total number of commits
     }));
   };
 
-  return(
-    <div
-      className="heatmap"
-      id="my_dataviz"
-    />
-  );
+  return <div className="heatmap" id="my_dataviz" />;
 };
 
 Heatmap.defaultProps = {
@@ -179,8 +182,8 @@ Heatmap.defaultProps = {
     top: 30,
     right: 30,
     bottom: 30,
-    left: 30
-  }
+    left: 30,
+  },
 };
 
 export default Heatmap;

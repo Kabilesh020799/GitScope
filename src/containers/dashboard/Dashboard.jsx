@@ -23,28 +23,30 @@ const Dashboard = () => {
   const { totalCollaborators, totalCommits, totalPulls } = useSelector(
     (state) => state.commitReducer
   );
+
+  const { repoUrl } = useSelector((state) => state.loginReducer);
+
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     Promise.all([
-      getTotalCommits().then((res) => {
+      getTotalCommits(repoUrl).then((res) => {
         dispatch(addTotalCommits({ data: res?.length }));
         dispatch(addCreatedDate({ data: res?.createdYear }));
       }),
-      getCollaborators().then((res) => {
+      getCollaborators(repoUrl).then((res) => {
         if (res.status !== 403) {
           dispatch(addTotalCollaborators({ data: res?.length }));
         }
       }),
-      getTotalPullRequests().then((res) => {
+      getTotalPullRequests(repoUrl).then((res) => {
         dispatch(setPulls({ data: res?.length }));
       }),
     ]).finally(() => {
       setLoading(false);
     });
-  }, [dispatch]);
+  }, [dispatch, repoUrl]);
 
   if (loading) {
     return (
