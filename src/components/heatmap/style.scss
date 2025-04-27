@@ -1,5 +1,11 @@
 .heatmap-container {
   position: relative;
+
+  &-no-commits {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+  }
 }
 
 .heatmap-modal {

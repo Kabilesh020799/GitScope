@@ -14,7 +14,7 @@ const Heatmap = ({ data, margin }) => {
     const commitCounts = {};
 
     commits.forEach((commit) => {
-      const date = new Date(commit.commit.author.date);
+      const date = new Date(commit?.commit?.author?.date);
       const month = date.toLocaleString("default", { month: "short" });
       const day = date.getDate();
       const key = `${month}-${day}`;
@@ -129,14 +129,14 @@ const Heatmap = ({ data, margin }) => {
   const handleDayClick = (month, day) => {
     const dayCommits = data
       .filter((commit) => {
-        const date = new Date(commit.commit.author.date);
+        const date = new Date(commit?.commit?.author?.date);
         const commitMonth = date.toLocaleString("default", { month: "short" });
         const commitDay = date.getDate();
         return commitMonth === month && commitDay === Number(day);
       })
       .sort(
         (a, b) =>
-          new Date(b.commit.author.date) - new Date(a.commit.author.date)
+          new Date(b?.commit?.author?.date) - new Date(a?.commit?.author?.date)
       );
 
     setSelectedDayCommits(dayCommits);
@@ -155,9 +155,14 @@ const Heatmap = ({ data, margin }) => {
       [index]: !prev[index],
     }));
   };
-
+  console.log(data);
   return (
     <div className="heatmap-container">
+      {!data.length ? (
+        <div className="heatmap-container-no-commits">
+          No commits to display
+        </div>
+      ) : null}
       <div
         id="tooltip"
         style={{
@@ -194,7 +199,7 @@ const Heatmap = ({ data, margin }) => {
                   return (
                     <li key={index} className="commit-item">
                       <div className="commit-author">
-                        {commit.commit.author.name}
+                        {commit?.commit?.author?.name}
                       </div>
                       <div className="commit-message">
                         {expanded || !isLong ? (
@@ -228,13 +233,12 @@ const Heatmap = ({ data, margin }) => {
                         )}
                       </div>
                       <div className="commit-time">
-                        {new Date(commit.commit.author.date).toLocaleTimeString(
-                          [],
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                        {new Date(
+                          commit?.commit?.author?.date
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     </li>
                   );
