@@ -40,8 +40,8 @@ func main() {
 	}
 
 
-	log.Println("Server starting on :8080")
-	err = http.ListenAndServe(":8080", r)
+	log.Println("Server starting on :10000")
+	err = http.ListenAndServe(":10000", r)
 	if err != nil {
 		log.Fatal(err)
 	}
