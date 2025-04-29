@@ -70,6 +70,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
+
+	var userID int
+	err = db.Conn.QueryRow(context.Background(), "SELECT id FROM users WHERE username=$1", creds.Username).Scan(&userID)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
 	
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(creds.Password))
 	if err != nil {
@@ -77,7 +84,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := utils.GenerateJWT(creds.Username)
+	tokenString, err := utils.GenerateJWT(creds.Username, userID)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return

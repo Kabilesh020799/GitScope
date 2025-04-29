@@ -1,11 +1,17 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
 	"gitscope.com/backend/utils"
 )
+
+type ContextKey string
+
+const UserCtxKey ContextKey = "user"
+
 
 func JWTAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -23,12 +29,13 @@ func JWTAuthentication(next http.Handler) http.Handler {
 
 		tokenString := tokenParts[1]
 
-		_, err := utils.VerifyJWT(tokenString)
+		claims, err := utils.VerifyJWT(tokenString)
 		if err != nil {
 			http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), UserCtxKey, claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

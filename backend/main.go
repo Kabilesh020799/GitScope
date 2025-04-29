@@ -21,6 +21,8 @@ func main() {
 	protected := r.PathPrefix("/api").Subrouter()
 	protected.Use(middleware.JWTAuthentication)
 	protected.HandleFunc("/profile", handlers.Profile).Methods("GET")
+	protected.HandleFunc("/repositories", handlers.AddRepository).Methods("POST")
+	protected.HandleFunc("/repos", handlers.GetRepositories).Methods("GET")
 
 	// Load environment variables
 	err := godotenv.Load()
