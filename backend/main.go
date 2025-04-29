@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -25,13 +26,15 @@ func main() {
 	protected.HandleFunc("/repos", handlers.GetRepositories).Methods("GET")
 
 	// Load environment variables
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv("RENDER") == "" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("No .env file found, using system environment variables")
+		}
 	}
 	
 	// Connect to DB
-	err = db.Connect()
+	err := db.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}
