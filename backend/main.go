@@ -33,8 +33,7 @@ func enableCORS(next http.Handler) http.Handler {
 func main() {
 	r := mux.NewRouter()
 	r.Use(mux.CORSMethodMiddleware(r))
-	r.Use(enableCORS)
-
+	
 	r.HandleFunc("/login", handlers.Login).Methods("POST")
 	r.HandleFunc("/signup", handlers.Signup).Methods("POST")
 
@@ -59,9 +58,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	handler := enableCORS(r)
 
 	log.Println("Server starting on :10000")
-	err = http.ListenAndServe(":10000", r)
+	err = http.ListenAndServe(":10000", handler)
 	if err != nil {
 		log.Fatal(err)
 	}
