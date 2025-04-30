@@ -12,9 +12,22 @@ import (
 	"gitscope.com/backend/middleware"
 )
 
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 func main() {
 	r := mux.NewRouter()
-	r.Use(middleware.CORSMiddleware)
 
 	r.HandleFunc("/login", handlers.Login).Methods("POST")
 	r.HandleFunc("/signup", handlers.Signup).Methods("POST")
@@ -40,9 +53,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	handler := enableCORS(r)
 
 	log.Println("Server starting on :10000")
-	err = http.ListenAndServe(":10000", r)
+	err = http.ListenAndServe(":10000", handler)
 	if err != nil {
 		log.Fatal(err)
 	}
