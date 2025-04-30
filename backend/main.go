@@ -33,7 +33,7 @@ func enableCORS(next http.Handler) http.Handler {
 func main() {
 	r := mux.NewRouter()
 	r.Use(mux.CORSMethodMiddleware(r))
-	
+
 	r.HandleFunc("/login", handlers.Login).Methods("POST")
 	r.HandleFunc("/signup", handlers.Signup).Methods("POST")
 
@@ -41,7 +41,7 @@ func main() {
 	protected := r.PathPrefix("/api").Subrouter()
 	protected.Use(middleware.JWTAuthentication)
 	protected.HandleFunc("/profile", handlers.Profile).Methods("GET")
-	protected.HandleFunc("/repositories", handlers.AddRepository).Methods("POST")
+	protected.HandleFunc("/repos", handlers.AddRepository).Methods("POST")
 	protected.HandleFunc("/repos", handlers.GetRepositories).Methods("GET")
 
 	// Load environment variables
