@@ -29,6 +29,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     Promise.all([
       getTotalCommits(repoUrl).then((res) => {

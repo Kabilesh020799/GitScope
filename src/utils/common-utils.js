@@ -18,4 +18,11 @@ const constructGitUrl = (repoUrl, key) => {
   return `${user}/${repoName}/${key ? key : ""}`;
 };
 
-export { setStorage, getStorage, constructGitUrl };
+const extractRepoName = (url) => {
+  const match = url.match(/github\.com\/[^\/]+\/([^\/]+)/);
+  if (!match) return "";
+  const name = match[1];
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+
+export { setStorage, getStorage, constructGitUrl, extractRepoName };

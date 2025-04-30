@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoginBackground from "./components/login-background";
 import TypeAnimation from "../../components/type-animation";
 import { useDispatch } from "react-redux";
@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { setStorage } from "../../utils/common-utils";
 import { addRepoUrl } from "./reducer";
 import { useSelector } from "react-redux";
+import { addRepository, fetchRepos } from "./apiCall";
+import RepoList from "./components/repo-list";
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
@@ -23,10 +25,22 @@ const Login = () => {
   const onContinue = async () => {
     if (repo) {
       setStorage("repo-url", repo);
+      addRepository(repo, bearerToken);
       dispatch(addRepoUrl({ data: repo }));
       navigate("/dashboard");
     }
   };
+
+  const [repoList, setRepoList] = useState([]);
+
+  useEffect(() => {
+    const onRender = async () => {
+      const data = await fetchRepos(bearerToken);
+      setRepoList(data);
+    };
+
+    if (bearerToken) onRender();
+  }, [bearerToken]);
 
   return (
     <div className="login-container">
@@ -71,6 +85,7 @@ const Login = () => {
           ) : null}
         </div>
       </div>
+      <RepoList repoList={repoList} />
     </div>
   );
 };
