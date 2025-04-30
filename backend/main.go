@@ -14,11 +14,14 @@ import (
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -26,8 +29,11 @@ func enableCORS(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 func main() {
 	r := mux.NewRouter()
+	r.Use(mux.CORSMethodMiddleware(r))
+	r.Use(enableCORS)
 
 	r.HandleFunc("/login", handlers.Login).Methods("POST")
 	r.HandleFunc("/signup", handlers.Signup).Methods("POST")
@@ -53,10 +59,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := enableCORS(r)
 
 	log.Println("Server starting on :10000")
-	err = http.ListenAndServe(":10000", handler)
+	err = http.ListenAndServe(":10000", r)
 	if err != nil {
 		log.Fatal(err)
 	}
