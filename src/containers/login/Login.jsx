@@ -85,7 +85,7 @@ const Login = () => {
           ) : null}
         </div>
       </div>
-      <RepoList repoList={repoList} />
+      {repoList.length ? <RepoList repoList={repoList} /> : null}
     </div>
   );
 };
