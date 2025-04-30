@@ -7,6 +7,7 @@ import "./style.scss";
 import { useNavigate } from "react-router-dom";
 import { setStorage } from "../../utils/common-utils";
 import { addRepoUrl } from "./reducer";
+import { useSelector } from "react-redux";
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
@@ -14,10 +15,11 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { bearerToken } = useSelector((state) => state.signinReducer);
+
   const welcomeText =
     "Welcome to GitScope! \n Let's begin by entering your repository name";
 
-  // user defined functions
   const onContinue = async () => {
     if (repo) {
       setStorage("repo-url", repo);
@@ -28,6 +30,17 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <div className="login-container-header">
+        {!bearerToken.length && (
+          <button
+            className="repo-name-wrapper-btn"
+            onClick={() => navigate("/login")}
+            style={{ zIndex: 10, marginRight: "20px" }}
+          >
+            Login
+          </button>
+        )}
+      </div>
       <div style={{ zIndex: 1, position: "absolute" }}>
         <LoginBackground />
       </div>

@@ -3,12 +3,33 @@
   display: flex;
   flex-direction: column;
 
+  &-header {
+    z-index: 10;
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .repo-name-wrapper-btn {
+    border: 1px solid rgb(98, 116, 151);
+    color: rgb(98, 116, 151);
+    padding: 0px 30px;
+    font-size: 16px;
+    outline: none;
+    background: transparent;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+    margin-left: 12px;
+  }
+
   &-body {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: 1;
-    
+
     .text-container {
       padding: 20px;
       background: #0c162d;
@@ -16,7 +37,7 @@
 
       .repo-name {
         color: #00cfc8;
-        font-family: 'Space Mono', monospace;
+        font-family: "Space Mono", monospace;
         font-size: 16px;
         font-weight: 600;
         margin-top: 20px;
@@ -37,21 +58,9 @@
             padding: 10px;
             border: 1px solid transparent;
           }
-          &-input:active, &-input:focus {
+          &-input:active,
+          &-input:focus {
             border: 1px solid blue;
-          }
-          &-btn {
-            border: 1px solid rgb(98, 116, 151);
-            color: rgb(98, 116, 151);
-            padding: 0px 30px;
-            font-size: 16px;
-            outline: none;
-            background: transparent;
-            height: 40px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 1rem;
-            margin-left: 12px;
           }
         }
       }
