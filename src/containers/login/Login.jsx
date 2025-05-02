@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import LoginBackground from "./components/login-background";
 import TypeAnimation from "../../components/type-animation";
 import { useDispatch } from "react-redux";
@@ -22,46 +22,42 @@ const Login = () => {
   const welcomeText =
     "Welcome to GitScope! \n Let's begin by entering your repository name";
 
-  const onContinue = async () => {
+  const onContinue = useCallback(async () => {
     if (repo) {
       setStorage("repo-url", repo);
-      addRepository(repo, bearerToken);
+      await addRepository(repo, bearerToken);
       dispatch(addRepoUrl({ data: repo }));
       navigate("/dashboard");
     }
-  };
+  }, [repo, bearerToken, dispatch, navigate]);
 
   const [repoList, setRepoList] = useState([]);
 
   useEffect(() => {
-    const onRender = async () => {
-      const data = await fetchRepos(bearerToken);
-      setRepoList(data);
+    const fetchRepoList = async () => {
+      const fetchedRepos = await fetchRepos(bearerToken);
+      setRepoList(fetchedRepos);
     };
 
-    if (bearerToken) onRender();
+    if (bearerToken) fetchRepoList();
   }, [bearerToken]);
 
   return (
     <div className="login-container">
       <div className="login-container-header">
-        {!bearerToken.length && (
+        {!bearerToken && !bearerToken.length && (
           <button
             className="repo-name-wrapper-btn"
             onClick={() => navigate("/login")}
-            style={{ zIndex: 10, marginRight: "20px" }}
           >
             Login
           </button>
         )}
       </div>
-      <div style={{ zIndex: 1, position: "absolute" }}>
+      <div className="login-container-middle">
         <LoginBackground />
       </div>
-      <div
-        style={{ zIndex: 10, position: "relative" }}
-        className="login-container-body"
-      >
+      <div className="login-container-body">
         <div className="text-container">
           <TypeAnimation
             text={welcomeText}
@@ -76,6 +72,9 @@ const Login = () => {
                   className="repo-name-wrapper-input"
                   onChange={(e) => setRepo(e.target.value)}
                   value={repo}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") onContinue();
+                  }}
                 />
                 <button className="repo-name-wrapper-btn" onClick={onContinue}>
                   Continue
