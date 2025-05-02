@@ -3,7 +3,7 @@ import { ENDPOINTS } from "../../constants/api";
 
 const addRepository = async (repoUrl, bearerToken) => {
   try {
-    const response = await fetch(ENDPOINTS, {
+    const response = await fetch(ENDPOINTS.repos, {
       method: "POST",
       headers: getHeaders(bearerToken),
       body: JSON.stringify({
@@ -26,7 +26,7 @@ const addRepository = async (repoUrl, bearerToken) => {
 
 const fetchRepos = async (bearerToken) => {
   try {
-    const res = await fetch(ENDPOINTS, {
+    const res = await fetch(ENDPOINTS.repos, {
       headers: getHeaders(bearerToken),
     });
     const data = await res.json();

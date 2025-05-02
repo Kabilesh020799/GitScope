@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import "./style.scss";
-import { onSignin } from "./apiCall";
-import { useDispatch } from "react-redux";
+import { useAuth } from "../../hooks/useAuth";
 
 const Signin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const { signin, error } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-    onSignin({ username, password, onError: (val) => setError(val), dispatch });
+    signin({ username, password });
   };
 
   return (

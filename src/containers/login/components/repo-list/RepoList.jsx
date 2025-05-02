@@ -10,7 +10,7 @@ const RepoList = ({ repoList, onRepoSelect }) => {
           <li
             key={repoItem.id}
             className="repo-list-item"
-            onClick={onRepoSelect(repoItem.url)}
+            onClick={() => onRepoSelect(repoItem.url)}
             onKeyDown={(e) => e.key === "Enter" && onRepoSelect(repoItem.url)}
           >
             <div className="repo-content">

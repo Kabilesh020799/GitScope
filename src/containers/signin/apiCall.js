@@ -1,13 +1,12 @@
+import { ENDPOINTS } from "../../constants/api";
 import { setStorage } from "../../utils/common-utils";
 import { addToken } from "./reducer";
-
-const API_URL = process.env.REACT_APP_API_URL;
 
 const onSignin = async (params) => {
   const { username, password, onError, dispatch } = params;
 
   try {
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch(ENDPOINTS.login, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,10 +22,10 @@ const onSignin = async (params) => {
     const data = await response.json();
     setStorage("token", data.token);
     dispatch(addToken({ data: data.token }));
-
-    window.location.href = "/search";
+    return { success: true };
   } catch (err) {
     onError(err.message || "Something went wrong");
+    return { success: false };
   }
 };
 
