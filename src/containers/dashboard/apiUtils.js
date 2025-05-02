@@ -2,14 +2,21 @@ import api from "../../requests";
 import { constructGitUrl, getStorage } from "../../utils/common-utils";
 import { store } from "../../store";
 
-const stateRepoUrl = store.getState()?.loginReducer?.repoUrl;
-const repoUrl = getStorage("repo-url") || stateRepoUrl;
+const PAGE_SIZE = 100;
+
+const makeGitUrl = (endpoint, repoUrlState) =>
+  constructGitUrl(resolveRepoUrl(repoUrlState), endpoint);
+
+const resolveRepoUrl = (repoUrlState) =>
+  repoUrlState ||
+  getStorage("repo-url") ||
+  store.getState()?.loginReducer?.repoUrl;
 
 // get commits info for the repo
 const getCommits = async (filter, repoUrlState) => {
   const result = await api.get(
     constructGitUrl(
-      repoUrl || repoUrlState,
+      resolveRepoUrl(repoUrlState),
       `commits?per_page=100&${filter ? `${filter}` : ""}`
     )
   );
@@ -20,7 +27,7 @@ const getCommits = async (filter, repoUrlState) => {
 const getPulls = async (filter, repoUrlState) => {
   const result = await api.get(
     constructGitUrl(
-      repoUrl || repoUrlState,
+      resolveRepoUrl(repoUrlState),
       `pulls?per_page=100&${filter ? `${filter}` : ""}`
     )
   );
@@ -30,88 +37,94 @@ const getPulls = async (filter, repoUrlState) => {
 const getCollab = async (filter, repoUrlState) => {
   let result = await api.get(
     constructGitUrl(
-      repoUrl || repoUrlState,
+      resolveRepoUrl(repoUrlState),
       `contributors?per_page=100&${filter ? `${filter}` : ""}`
     )
   );
   return result;
 };
 
-// get total commits infor for the repo
-const getTotalCommits = async (repoUrlState) => {
-  let result = await getCommits("", repoUrlState);
-  const resultLink = result.headers.get("Link")?.split(",");
-  const lastPageLink = resultLink?.find((resultItem) =>
+const fetchLastPageCount = async (getPageFn, repoUrlState) => {
+  let result = await getPageFn("", repoUrlState);
+  const linkHeader = result.headers.get("Link")?.split(",");
+  const lastPageLink = linkHeader?.find((resultItem) =>
     resultItem.includes('rel="last"')
   );
+
   if (lastPageLink) {
-    const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
-    let lastPageCommits = await getCommits(`page=${lastPage}`, repoUrlState);
-    lastPageCommits = await lastPageCommits.json();
+    const match = lastPageLink.match(/&page=(\d+)>/);
+    const lastPage = match ? Number(match[1]) : 1;
+
+    const lastPageResponse = await getPageFn(`page=${lastPage}`, repoUrlState);
+    const lastPageData = await lastPageResponse.json();
+
     return {
-      length: lastPageCommits.length + 100 * (lastPage - 1),
-      createdYear:
-        lastPageCommits?.[lastPageCommits?.length - 1]?.commit?.author?.date,
+      total: lastPageData.length + PAGE_SIZE * (lastPage - 1),
+      lastPageData,
     };
   }
-  result = await result.json();
+  const data = await result.json();
   return {
-    length: result?.length,
-    createdYear: result?.[result?.length - 1]?.commit?.author?.date,
+    total: data?.length,
+    lastPageData: data,
+  };
+};
+
+// get total commits infor for the repo
+const getTotalCommits = async (repoUrlState) => {
+  const { total, lastPageData } = await fetchLastPageCount(
+    getCommits,
+    repoUrlState
+  );
+
+  return {
+    length: total,
+    createdYear: lastPageData?.[lastPageData?.length - 1]?.commit?.author?.date,
   };
 };
 
 // get total pull requests infor for the repo
 const getTotalPullRequests = async (repoUrlState) => {
-  let result = await getPulls("", repoUrlState);
-  const resultLink = result.headers.get("Link")?.split(",");
-  const lastPageLink = resultLink?.find((resultItem) =>
-    resultItem.includes('rel="last"')
-  );
-  if (lastPageLink) {
-    const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
-    let lastPageCommits = await getPulls(`page=${lastPage}`, repoUrlState);
-    lastPageCommits = await lastPageCommits.json();
-    return { length: lastPageCommits.length + 100 * (lastPage - 1) };
-  }
-  result = await result.json();
-  return { length: result?.length };
+  const { total } = await fetchLastPageCount(getPulls, repoUrlState);
+
+  return {
+    length: total,
+  };
 };
 
 // getting collaborators info of the repo
 const getCollaborators = async (repoUrlState) => {
-  let result = await getCollab("", repoUrlState);
-  const resultLink = result.headers?.get("Link")?.split(",");
-  const lastPageLink = resultLink?.find((resultItem) =>
-    resultItem.includes('rel="last"')
+  const { total, lastPageData } = await fetchLastPageCount(
+    getCollab,
+    repoUrlState
   );
-  if (lastPageLink) {
-    const lastPage = lastPageLink.match(/&page=(\d+)>/)[1];
-    let lastPageCommits = await getCollab(`page=${lastPage}`, repoUrlState);
-    lastPageCommits = await lastPageCommits.json();
-    return { length: lastPageCommits?.length + 100 * (lastPage - 1) };
-  }
-  result = await result.json();
-  return { length: result?.length };
+
+  return {
+    length: total,
+    createdYear: lastPageData?.[lastPageData?.length - 1]?.commit?.author?.date,
+  };
 };
 
-const getUserLocation = async (filter, page = 1) => {
-  let result = await api.get(
-    constructGitUrl(
-      repoUrl,
-      `contributors?per_page=100&${filter ? `${filter}` : ""}&page=${page}`
+const getAllPages = async (baseUrlBuilder, page = 1, accumulator = []) => {
+  const res = await api.get(baseUrlBuilder(page));
+  const linkHeader = res.headers.get("Link")?.split(",");
+  const nextPage = linkHeader?.some((item) => item.includes('rel="next"'));
+  const data = await res.json();
+
+  if (nextPage) {
+    return getAllPages(baseUrlBuilder, page + 1, [...accumulator, ...data]);
+  }
+
+  return [...accumulator, ...data];
+};
+
+const getUserLocation = async (filter, page = 1, repoUrlState) =>
+  getAllPages((page) =>
+    makeGitUrl(
+      `contributors?per_page=100&${filter ? `${filter}` : ""}&page=${page}`,
+      repoUrlState
     )
   );
-  const resultLink = result.headers.get("Link")?.split(",");
-  const nextPageLink = resultLink?.find((resultItem) =>
-    resultItem.includes('rel="next"')
-  );
-  result = await result.json();
-  if (nextPageLink) {
-    return [...result, ...(await getUserLocation(filter, page + 1))];
-  }
-  return [...result];
-};
 
 export {
   getTotalCommits,

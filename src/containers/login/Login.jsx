@@ -15,7 +15,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const { bearerToken } = useSelector((state) => state.signinReducer);
-  const { createAndSelectRepo, selectExistingRepo } = useRepoActions();
+  const { createAndSelectRepo, selectExistingRepo } =
+    useRepoActions(bearerToken);
 
   const welcomeText =
     "Welcome to GitScope! \n Let's begin by entering your repository name";
@@ -86,7 +87,7 @@ const Login = () => {
           ) : null}
         </div>
       </div>
-      {repoList.length ? (
+      {repoList?.length ? (
         <RepoList repoList={repoList} onRepoSelect={handleRepoClick} />
       ) : null}
     </div>
