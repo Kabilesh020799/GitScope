@@ -16,4 +16,6 @@
   padding: 30px 30px;
   overflow: hidden; // You might change this to auto if you want scrolling as well
   position: relative;
+  display: flex;
+  justify-content: center;
 }

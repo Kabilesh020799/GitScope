@@ -2,6 +2,15 @@
   width: 100%;
   height: 100%;
 
+  &-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+  }
+
   &-heading {
     color: #8193b2;
     text-align: center;
@@ -30,9 +39,17 @@
       border: 1px solid transparent;
       border-radius: 4px;
 
-      &:active, &:focus {
+      &:active,
+      &:focus {
         border: 1px solid blue;
       }
     }
+  }
+
+  &-loader {
+    height: calc(100% - 100px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

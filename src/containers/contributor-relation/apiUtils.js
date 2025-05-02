@@ -1,37 +1,52 @@
 import api from "../../requests";
 import { constructGitUrl, getStorage } from "../../utils/common-utils";
 
-const repoUrl = getStorage("repo-url");
-
-const fetchPullRequests = async (filter, page = 1) => {
-  let result = await api.get(
-    constructGitUrl(
-      repoUrl,
-      `pulls?per_page=100&${filter ? `${filter}` : ""}&page=${page}`
-    )
+const fetchAllPullRequests = async (
+  repoUrl,
+  filter = "",
+  page = 1,
+  accumulator = []
+) => {
+  const url = constructGitUrl(
+    repoUrl,
+    `pulls?per_page=100&${filter ? `${filter}` : ""}&page=${page}`
   );
-  const linkHeader = result.headers.get("Link");
-  const resultLink = linkHeader ? linkHeader.split(",") : null;
-  const nextPageLink = resultLink?.find((resultItem) =>
-    resultItem.includes('rel="next"')
-  );
+  const response = await api.get(url);
+  const linkHeader = response.headers.get("Link");
+  const nextPage = linkHeader?.includes('rel="next"');
+  const data = await response.json();
+  const all = [...accumulator, ...data];
 
-  result = await result.json();
-  await Promise.all(
-    result.map(async (pr) => {
-      const reviewsResponse = await api.get(
-        constructGitUrl(repoUrl, `pulls/${pr.number}/reviews`)
-      );
-      const reviews = await reviewsResponse.json();
-      pr.reviews = reviews;
-      pr.pullUrl = `${repoUrl}/pull/${pr?.number}`;
+  return nextPage ? fetchAllPullRequests(repoUrl, filter, page + 1, all) : all;
+};
+
+const enrichPullRequests = async (repoUrl, pullRequests) => {
+  return Promise.all(
+    pullRequests.map(async (pr) => {
+      try {
+        const reviewsRes = await api.get(
+          constructGitUrl(repoUrl, `pulls/${pr.number}/reviews`)
+        );
+        const reviews = await reviewsRes.json();
+
+        return {
+          ...pr,
+          reviews,
+          pullUrl: `${repoUrl}/pull/${pr?.number}`,
+        };
+      } catch (err) {
+        console.error(`Failed to fetch reviews for PR #${pr.number}`, err);
+        return { ...pr, reviews: [], pullUrl: `${repoUrl}/pull/${pr?.number}` };
+      }
     })
   );
+};
 
-  if (nextPageLink) {
-    return [...result, ...(await fetchPullRequests(filter, page + 1))];
-  }
-  return [...result];
+const fetchPullRequests = async (filter) => {
+  const repoUrl = getStorage("repo-url");
+  const rawPulls = await fetchAllPullRequests(repoUrl, filter);
+  const enriched = await enrichPullRequests(repoUrl, rawPulls);
+  return enriched;
 };
 
 export { fetchPullRequests };
