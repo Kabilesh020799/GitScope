@@ -1,43 +1,32 @@
 import React, { useCallback, useEffect, useState } from "react";
 import LoginBackground from "./components/login-background";
 import TypeAnimation from "../../components/type-animation";
-import { useDispatch } from "react-redux";
 
 import "./style.scss";
 import { useNavigate } from "react-router-dom";
-import { setStorage } from "../../utils/common-utils";
-import { addRepoUrl } from "./reducer";
 import { useSelector } from "react-redux";
-import { addRepository, fetchRepos } from "./apiCall";
+import { fetchRepos } from "./apiCall";
 import RepoList from "./components/repo-list";
+import { useRepoActions } from "../../hooks/useRepoActions";
 
 const Login = () => {
   const [isTypeDone, setIsTypeDone] = useState(false);
   const [repo, setRepo] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const { bearerToken } = useSelector((state) => state.signinReducer);
+  const { createAndSelectRepo, selectExistingRepo } = useRepoActions();
 
   const welcomeText =
     "Welcome to GitScope! \n Let's begin by entering your repository name";
 
   const onContinue = useCallback(async () => {
-    if (repo) {
-      setStorage("repo-url", repo);
-      await addRepository(repo, bearerToken);
-      dispatch(addRepoUrl({ data: repo }));
-      navigate("/dashboard");
-    }
-  }, [repo, bearerToken, dispatch, navigate]);
+    if (repo) createAndSelectRepo(repo);
+  }, [repo, createAndSelectRepo]);
 
   const handleRepoClick = useCallback(
-    (url) => {
-      setStorage("repo-url", url);
-      dispatch(addRepoUrl({ data: url }));
-      navigate("/dashboard");
-    },
-    [dispatch, navigate]
+    (url) => selectExistingRepo(url),
+    [selectExistingRepo]
   );
 
   const [repoList, setRepoList] = useState([]);
@@ -85,7 +74,11 @@ const Login = () => {
                     if (e.key === "Enter") onContinue();
                   }}
                 />
-                <button className="repo-name-wrapper-btn" onClick={onContinue}>
+                <button
+                  className="repo-name-wrapper-btn"
+                  onClick={onContinue}
+                  disabled={!repo.trim()}
+                >
                   Continue
                 </button>
               </div>
