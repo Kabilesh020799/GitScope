@@ -1,58 +1,66 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { motion } from "framer-motion";
 
 import Card from "../../components/card";
-import {
-  addCreatedDate,
-  addTotalCommits,
-  addTotalCollaborators,
-  setPulls,
-} from "../dashboard/reducer";
-import {
-  getCollaborators,
-  getTotalCommits,
-  getTotalPullRequests,
-} from "./apiUtils";
-
 import "./style.scss";
+import { useDashboardStats } from "../../hooks/useDashboardStats";
 
 const Dashboard = () => {
   const { totalCollaborators, totalCommits, totalPulls } = useSelector(
     (state) => state.commitReducer
   );
-
   const { repoUrl } = useSelector((state) => state.loginReducer);
-
-  const dispatch = useDispatch();
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      getTotalCommits(repoUrl).then((res) => {
-        dispatch(addTotalCommits({ data: res?.length }));
-        dispatch(addCreatedDate({ data: res?.createdYear }));
-      }),
-      getCollaborators(repoUrl).then((res) => {
-        if (res.status !== 403) {
-          dispatch(addTotalCollaborators({ data: res?.length }));
-        }
-      }),
-      getTotalPullRequests(repoUrl).then((res) => {
-        dispatch(setPulls({ data: res?.length }));
-      }),
-    ]).finally(() => {
-      setLoading(false);
-    });
-  }, [dispatch, repoUrl]);
+  const loading = useDashboardStats(repoUrl);
 
   if (loading) {
     return (
       <div className="dashboard-loading">
         <CircularProgress size={80} thickness={4} />
+      </div>
+    );
+  }
+
+  const cardData = [
+    {
+      name: "Commits",
+      value: totalCommits,
+      path: "/commit-activity",
+      delay: 0.1,
+    },
+    {
+      name: "Contributors",
+      value: totalCollaborators,
+      path: "/contributor-activity",
+      delay: 0.3,
+    },
+    {
+      name: "Active Pulls",
+      value: totalPulls,
+      path: "/contributor-relation",
+      delay: 0.5,
+    },
+  ];
+
+  const rowCards = [
+    {
+      title: "Analyze Sentiment of Comments",
+      path: "/comment-activity",
+      linkText: "Go to Comment Analysis",
+    },
+    {
+      title: "Explore Individual User Contributions",
+      path: "/user-contribution",
+      linkText: "Go to User Contribution Analysis",
+    },
+  ];
+
+  if (!repoUrl) {
+    return (
+      <div className="dashboard-error">
+        <p>No repository selected. Please go back and choose a repository.</p>
       </div>
     );
   }
@@ -69,75 +77,38 @@ const Dashboard = () => {
       </motion.h1>
 
       <div className="dashboard-cards">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <Card
-            name="Commits"
-            value={totalCommits}
-            path="/commit-activity"
-            loading={loading}
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <Card
-            name="Contributors"
-            value={totalCollaborators}
-            path="/contributor-activity"
-            loading={loading}
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <Card
-            name="Active Pulls"
-            value={totalPulls}
-            path="/contributor-relation"
-            loading={loading}
-          />
-        </motion.div>
+        {cardData.map((card) => (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: card.delay }}
+          >
+            <Card
+              name={card.name}
+              value={card.value}
+              path={card.path}
+              loading={loading}
+            />
+          </motion.div>
+        ))}
       </div>
 
       <div className="dashboard-contents">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <DashboardRowCard
-            title="Analyze Sentiment of Comments"
-            path="/comment-activity"
-            linkText="Go to Comment Analysis"
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <DashboardRowCard
-            title="Explore Individual User Contributions"
-            path="/user-contribution"
-            linkText="Go to User Contribution Analysis"
-          />
-        </motion.div>
+        {rowCards.map((row) => (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <DashboardRowCard {...row} />
+          </motion.div>
+        ))}
       </div>
     </div>
   );
 };
 
-const DashboardRowCard = ({ title, path, linkText }) => (
+const DashboardRowCard = React.memo(({ title, path, linkText }) => (
   <div className="row-card">
     <span className="row-text">{title}</span>
     <NavLink className="nav-link" to={path}>
@@ -145,6 +116,6 @@ const DashboardRowCard = ({ title, path, linkText }) => (
       <i className="fa-solid fa-arrow-right"></i>
     </NavLink>
   </div>
-);
+));
 
 export default Dashboard;
