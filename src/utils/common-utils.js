@@ -25,4 +25,9 @@ const extractRepoName = (url) => {
   return name.charAt(0).toUpperCase() + name.slice(1);
 };
 
-export { setStorage, getStorage, constructGitUrl, extractRepoName };
+const getHeaders = (bearerToken) => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${bearerToken}`,
+});
+
+export { setStorage, getStorage, constructGitUrl, extractRepoName, getHeaders };
