@@ -23,7 +23,7 @@
     margin-top: 1rem;
     margin-left: 12px;
     z-index: 10;
-    margin-right: "20px";
+    margin-right: 20px;
   }
 
   .repo-name-wrapper-btn:disabled {
@@ -34,7 +34,7 @@
 
   &-middle {
     z-index: 1;
-    position: "absolute";
+    position: absolute;
   }
   &-body {
     display: flex;
@@ -42,7 +42,7 @@
     justify-content: center;
     flex: 1;
     z-index: 10;
-    position: "relative";
+    position: relative;
 
     .text-container {
       padding: 20px;
@@ -70,7 +70,7 @@
             color: #8193b2;
             margin-top: 1rem;
             padding: 10px;
-            border: 1px solid transparent;
+            border: 1px solid #3d444db3;
           }
           &-input:active,
           &-input:focus {

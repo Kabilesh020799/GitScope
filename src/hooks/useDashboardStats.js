@@ -10,6 +10,7 @@ import {
   addTotalCommits,
   setPulls,
 } from "../containers/dashboard/reducer";
+import { useEffect, useState } from "react";
 
 export const useDashboardStats = (repoUrl) => {
   const dispatch = useDispatch();

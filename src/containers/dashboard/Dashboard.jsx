@@ -1,12 +1,12 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { motion } from "framer-motion";
 
 import Card from "../../components/card";
 import "./style.scss";
 import { useDashboardStats } from "../../hooks/useDashboardStats";
+import DashboardRowCard from "./components/dashboard-row-card";
 
 const Dashboard = () => {
   const { totalCollaborators, totalCommits, totalPulls } = useSelector(
@@ -79,6 +79,7 @@ const Dashboard = () => {
       <div className="dashboard-cards">
         {cardData.map((card) => (
           <motion.div
+            key={card.name}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: card.delay }}
@@ -96,6 +97,7 @@ const Dashboard = () => {
       <div className="dashboard-contents">
         {rowCards.map((row) => (
           <motion.div
+            key={row.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
@@ -107,15 +109,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-const DashboardRowCard = React.memo(({ title, path, linkText }) => (
-  <div className="row-card">
-    <span className="row-text">{title}</span>
-    <NavLink className="nav-link" to={path}>
-      {linkText}
-      <i className="fa-solid fa-arrow-right"></i>
-    </NavLink>
-  </div>
-));
 
 export default Dashboard;
