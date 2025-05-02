@@ -118,7 +118,7 @@ const getAllPages = async (baseUrlBuilder, page = 1, accumulator = []) => {
   return [...accumulator, ...data];
 };
 
-const getUserLocation = async (filter, page = 1, repoUrlState) =>
+const getUserLocation = async (filter, repoUrlState) =>
   getAllPages((page) =>
     makeGitUrl(
       `contributors?per_page=100&${filter ? `${filter}` : ""}&page=${page}`,

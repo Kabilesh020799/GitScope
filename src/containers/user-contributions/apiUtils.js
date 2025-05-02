@@ -2,8 +2,6 @@ import api from "../../requests";
 import { constructGitUrl, getStorage } from "../../utils/common-utils";
 import { fetchPullRequests } from "../contributor-relation/apiUtils";
 
-const repoUrl = getStorage("repo-url");
-
 const fetchCommitsByUser = async (repoUrl, username) => {
   const res = await api.get(
     constructGitUrl(repoUrl, `commits?author=${username}`)
