@@ -31,6 +31,15 @@ const Login = () => {
     }
   }, [repo, bearerToken, dispatch, navigate]);
 
+  const handleRepoClick = useCallback(
+    (url) => {
+      setStorage("repo-url", url);
+      dispatch(addRepoUrl({ data: url }));
+      navigate("/dashboard");
+    },
+    [dispatch, navigate]
+  );
+
   const [repoList, setRepoList] = useState([]);
 
   useEffect(() => {
@@ -84,7 +93,9 @@ const Login = () => {
           ) : null}
         </div>
       </div>
-      {repoList.length ? <RepoList repoList={repoList} /> : null}
+      {repoList.length ? (
+        <RepoList repoList={repoList} onRepoSelect={handleRepoClick} />
+      ) : null}
     </div>
   );
 };
