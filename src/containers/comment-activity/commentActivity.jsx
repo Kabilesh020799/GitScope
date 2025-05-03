@@ -23,7 +23,6 @@ const CommentActivity = () => {
 
   const onSelectYear = useCallback(
     (selectedYear) => {
-      console.log(selectedYear);
       dispatch(clearComments());
       setYear(selectedYear);
     },

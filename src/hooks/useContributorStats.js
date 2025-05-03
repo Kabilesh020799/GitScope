@@ -8,7 +8,10 @@ import {
   addTotalCollaborators,
   replaceCollaborators,
 } from "../containers/dashboard/reducer";
-import { getAllCollaboratorsByYear } from "../containers/contributor-activity/apiUtils";
+import {
+  getAllCollaborators,
+  getAllCollaboratorsByYear,
+} from "../containers/contributor-activity/apiUtils";
 import { useEffect, useState } from "react";
 
 export const useContributorStats = (year) => {
@@ -45,7 +48,10 @@ export const useContributorStats = (year) => {
       if (createdYear) {
         try {
           setLoading(true);
-          const filteredContributors = await getAllCollaboratorsByYear(year);
+          const filteredContributors =
+            year === "all"
+              ? await getAllCollaborators()
+              : await getAllCollaboratorsByYear(Number(year));
           dispatch(replaceCollaborators({ data: filteredContributors }));
         } catch (error) {
           console.error("Failed to fetch contributors by year:", error);

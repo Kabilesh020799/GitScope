@@ -7,7 +7,7 @@ import YearSelector from "../../components/year-selector";
 import { useContributorStats } from "../../hooks/useContributorStats";
 
 const ContributorActivity = () => {
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState("all");
   const [years, setYears] = useState([]);
   const navigate = useNavigate();
   const { collaborators, createdYear, loading } = useContributorStats(year);
@@ -56,6 +56,7 @@ const ContributorActivity = () => {
         years={years}
         selectedYear={year}
         onSelectYear={onSelectYear}
+        hasAllTime={true}
       />
 
       {loading ? (

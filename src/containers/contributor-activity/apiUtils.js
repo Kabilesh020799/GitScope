@@ -4,9 +4,26 @@ import { constructGitUrl, getStorage } from "../../utils/common-utils";
 const repoUrl = getStorage("repo-url");
 
 const getAllCollaborators = async () => {
-  let result = await api.get(constructGitUrl(repoUrl, `stats/contributors`));
-  result = await result.json();
-  return [...result];
+  const res = await api.get(constructGitUrl(repoUrl, `stats/contributors`));
+  const data = await res.json();
+
+  const allTimeData = data
+    .map((contributor) => {
+      const totalCommits = contributor.weeks.reduce((acc, w) => acc + w.c, 0);
+      const totalAdditions = contributor.weeks.reduce((acc, w) => acc + w.a, 0);
+      const totalDeletions = contributor.weeks.reduce((acc, w) => acc + w.d, 0);
+
+      return {
+        login: contributor.author?.login || "unknown",
+        totalCommits,
+        totalAdditions,
+        totalDeletions,
+        year: "all",
+      };
+    })
+    .filter((c) => c.totalCommits > 0);
+
+  return allTimeData;
 };
 
 const getAllCollaboratorsByYear = async (
@@ -14,7 +31,6 @@ const getAllCollaboratorsByYear = async (
   maxRetries = 5,
   delay = 2000
 ) => {
-  console.log(year);
   const fetchStats = async (retries) => {
     const res = await api.get(constructGitUrl(repoUrl, `stats/contributors`));
 
