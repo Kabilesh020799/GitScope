@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import WordMap from "../../components/word-map";
 import "./style.scss";
@@ -12,33 +12,46 @@ import { clearComments } from "../dashboard/reducer";
 const CommentActivity = () => {
   const { comments, createdYear } = useSelector((state) => state.commitReducer);
   const [year, setYear] = useState(new Date().getFullYear());
-  const [years, setYears] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useCommentData(year);
 
-  const onClickDashboard = () => {
+  const onClickDashboard = useCallback(() => {
     navigate("/dashboard");
-  };
+  }, [navigate]);
 
-  const onSelectYear = (selectedYear) => {
-    dispatch(clearComments());
-    setYear(selectedYear);
-  };
+  const onSelectYear = useCallback(
+    (selectedYear) => {
+      console.log(selectedYear);
+      dispatch(clearComments());
+      setYear(selectedYear);
+    },
+    [dispatch]
+  );
 
-  useEffect(() => {
-    if (createdYear) {
-      const firstYear = new Date(createdYear).getFullYear();
-      const endYear = new Date().getFullYear();
-      for (let year = firstYear; year <= endYear; year++) {
-        if (!years.includes(year)) {
-          setYears((prevState) => [...prevState, year]);
-        }
-      }
-    }
-    return () => setYears([]);
+  const availableYears = useMemo(() => {
+    if (!createdYear) return [];
+    const start = new Date(createdYear).getFullYear();
+    const end = new Date().getFullYear();
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }, [createdYear]);
+
+  const renderWordMapSection = (title, words, classKey) =>
+    words?.length ? (
+      <div className={`wordmaps-${classKey}`}>
+        <h1>{title}</h1>
+        <WordMap words={words} classKey={classKey} />
+      </div>
+    ) : null;
+
+  const renderBarChartSection = (label, data, classKey) =>
+    Object.keys(data || {}).length ? (
+      <div className="barcharts-block">
+        <span>{label}</span>
+        <BarChart data={data} classKey={classKey} />
+      </div>
+    ) : null;
 
   return (
     <div className="comment-activity">
@@ -58,60 +71,39 @@ const CommentActivity = () => {
       </div>
       <div className="comment-activity-contents">
         <YearSelector
-          years={years}
+          years={availableYears}
           selectedYear={year}
           onSelectYear={onSelectYear}
         />
         <div className="wordmaps">
-          <div className="wordmaps-positive">
-            {Object.keys(comments?.extractPositiveWords || {})?.length ? (
-              <>
-                <h1>Positive words used</h1>
-                <WordMap
-                  words={Object.keys(comments?.extractPositiveWords)}
-                  classKey="positive"
-                />
-              </>
-            ) : null}
-          </div>
-          <div className="wordmaps-negative">
-            {Object.keys(comments?.extractNegativeWords || {})?.length ? (
-              <>
-                <h1>Negative words used</h1>
-                <WordMap
-                  words={Object.keys(comments?.extractNegativeWords)}
-                  classKey="negative"
-                />
-              </>
-            ) : null}
-          </div>
+          {renderWordMapSection(
+            "Positive words used",
+            Object.keys(comments?.extractPositiveWords || {}),
+            "positive"
+          )}
+          {renderWordMapSection(
+            "Negative words used",
+            Object.keys(comments?.extractNegativeWords || {}),
+            "negative"
+          )}
         </div>
       </div>
       <div className="barcharts">
-        <h1>Some of the most frequently used</h1>
+        {(Object.keys(comments?.extractPositiveWords || {}).length > 0 ||
+          Object.keys(comments?.extractNegativeWords || {}).length > 0) && (
+          <h1>Some of the most frequently used</h1>
+        )}
         <div className="barcharts-contents">
-          <div className="barcharts-block">
-            {Object.keys(comments?.extractPositiveWords || {})?.length ? (
-              <>
-                <span>Positive Words</span>
-                <BarChart
-                  data={comments?.extractPositiveWords}
-                  classKey="positive"
-                />
-              </>
-            ) : null}
-          </div>
-          <div className="barcharts-block">
-            {Object.keys(comments?.extractNegativeWords || {})?.length ? (
-              <>
-                <span>Negative Words</span>
-                <BarChart
-                  data={comments?.extractNegativeWords}
-                  classKey="negative"
-                />
-              </>
-            ) : null}
-          </div>
+          {renderBarChartSection(
+            "Positive Words",
+            comments?.extractPositiveWords,
+            "positive"
+          )}
+          {renderBarChartSection(
+            "Negative Words",
+            comments?.extractNegativeWords,
+            "negative"
+          )}
         </div>
       </div>
     </div>
