@@ -5,7 +5,7 @@ import cloud from "d3-cloud";
 const WordMap = (props) => {
   const {
     words,
-    margin = { top: 10, right: 10, bottom: 10, ledt: 10 },
+    margin = { top: 10, right: 10, bottom: 10, left: 10 },
     classKey = "",
     fontSize = 20,
     rotate = () => -45,

@@ -45,13 +45,17 @@ const parseTotalPages = (linkHeader) => {
 };
 
 const fetchCommentsPage = async (repoUrl, page, since) => {
-  const res = await api.get(
-    constructGitUrl(
-      repoUrl,
-      `issues/comments?per_page=100&since=${since}&page=${page}`
-    )
-  );
-  return res.json();
+  try {
+    const res = await api.get(
+      constructGitUrl(
+        repoUrl,
+        `issues/comments?per_page=100&since=${since}&page=${page}`
+      )
+    );
+    return res.json();
+  } catch (err) {
+    return [];
+  }
 };
 
 const getAllComments = async ({ year }) => {
