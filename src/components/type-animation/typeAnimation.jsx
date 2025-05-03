@@ -1,45 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import './style.scss';
+import "./style.scss";
 
 const TypeAnimation = (props) => {
-  const {
-    text,
-    color,
-    onDone
-  } = props;
+  const { text = "", color = "#000", onDone = () => {} } = props;
 
-  const [animatedText, setAnimatedText] = useState('');
+  const [animatedText, setAnimatedText] = useState([]);
 
   useEffect(() => {
     let index = 0;
-    let interval = null;
+    setAnimatedText([text[0]]);
 
-    const updateState = () => {
-      if(text[index] === '\n') {
-        setAnimatedText((prevState) => (prevState + "<br />"));
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setAnimatedText((prev) => [...prev, text[index]]);
+        index++;
       } else {
-        setAnimatedText((prevState) => (prevState + text[index]));
-      }
-      index += 1;
-      if(index === text.length - 1) {
         clearInterval(interval);
         onDone();
       }
-    };
-    updateState();
-    interval = setInterval(() => {
-      updateState();
     }, 50);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [text]);
+    return () => clearInterval(interval);
+  }, [text, onDone]);
+
+  const renderContent = () => {
+    return animatedText.map((char, i) =>
+      char === "\n" ? <br key={i} /> : <span key={i}>{char}</span>
+    );
+  };
 
   return (
     <div>
-      <span style={{ color }} dangerouslySetInnerHTML={{ __html: animatedText }} className='type-animation'/>
+      <span style={{ color }} className="type-animation">
+        {renderContent()}
+      </span>
       <span className="cursor">|</span>
     </div>
   );
