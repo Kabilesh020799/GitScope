@@ -1,47 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { getAllComments } from "./apiUtils";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addCreatedDate,
-  clearLoading,
-  setComments,
-  setLoading,
-} from "../dashboard/reducer";
+import { useSelector } from "react-redux";
 import WordMap from "../../components/word-map";
 import "./style.scss";
 import YearSelector from "../../components/year-selector";
-import { getTotalCommits } from "../dashboard/apiUtils";
 import BarChart from "../../components/bar-chart";
 import { useNavigate } from "react-router-dom";
+import { useCommentData } from "../../hooks/useCommentData";
+import { useDispatch } from "react-redux";
+import { clearComments } from "../dashboard/reducer";
 
 const CommentActivity = () => {
-  const dispatch = useDispatch();
   const { comments, createdYear } = useSelector((state) => state.commitReducer);
   const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useCommentData(year);
 
   const onClickDashboard = () => {
     navigate("/dashboard");
   };
 
-  useEffect(() => {
-    dispatch(setLoading());
-    getAllComments({ year })
-      .then((res) => {
-        dispatch(setComments({ data: res }));
-      })
-      .finally(() => {
-        dispatch(clearLoading());
-      })
-      .catch(() => {
-        dispatch(clearLoading());
-      });
-
-    getTotalCommits().then((res) => {
-      dispatch(addCreatedDate({ data: res.createdYear }));
-    });
-  }, [year]);
+  const onSelectYear = (selectedYear) => {
+    dispatch(clearComments());
+    setYear(selectedYear);
+  };
 
   useEffect(() => {
     if (createdYear) {
@@ -76,7 +60,7 @@ const CommentActivity = () => {
         <YearSelector
           years={years}
           selectedYear={year}
-          onSelectYear={(selYear) => setYear(selYear)}
+          onSelectYear={onSelectYear}
         />
         <div className="wordmaps">
           <div className="wordmaps-positive">

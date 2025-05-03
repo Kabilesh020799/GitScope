@@ -1,59 +1,99 @@
 import api from "../../requests";
 import { constructGitUrl, getStorage } from "../../utils/common-utils";
 
-const repoUrl = getStorage('repo-url');
+let positiveWords = [];
+let negativeWords = [];
 
-let positiveWords = await  fetch("/positive-words.txt");
-positiveWords = await positiveWords.text();
-positiveWords = positiveWords.split(/\s+/);
-let negativeWords = await fetch("/negative-words.txt");
-negativeWords = await negativeWords.text();
-negativeWords = negativeWords.split(/\s+/);
+const loadWordLists = async () => {
+  if (!positiveWords.length || !negativeWords.length) {
+    const posRes = await fetch("/positive-words.txt");
+    positiveWords = (await posRes.text()).split(/\s+/).filter(Boolean);
 
-const getAllComments = async(props) => {
-  const {
-    page,
-    year,
-    pW, 
-    nW
-  } = props;
-  const pageNum = page || 1;
-  const startDate = new Date(year, 0, 1);
-  let extractPositiveWords = pW || {};
-  let extractNegativeWords = nW || {};
-
-  let result = await api.get(constructGitUrl(repoUrl, `issues/comments?per_page=100&since=${startDate.toISOString()}&page=${page}`));
-  const resultLink = result.headers.get('Link')?.split(',');
-  const nextPageLink = resultLink?.find((resultItem) => resultItem.includes('rel="next"'));
-  result = await result.json();
-  const filteredResult = result?.filter((resultItem) => new Date(resultItem?.created_at).getFullYear() === year);
-  filteredResult?.forEach((item) => {
-    item?.body?.split(" ")?.filter((i) => (positiveWords.includes(i) && i !== "")).forEach((word) => {
-      extractPositiveWords[word] = (extractPositiveWords[word] || 0) + 1;
-    });
-
-    item?.body?.split(" ")?.filter((i) => (negativeWords.includes(i) && i !== "")).forEach((word) => {
-      extractNegativeWords[word] = (extractNegativeWords[word] || 0) + 1;
-    });
-  });
-  if(new Date(filteredResult?.[filteredResult?.length - 1]?.created_at).getFullYear() === year) {
-    if(nextPageLink) {
-      const res = await getAllComments({ page: pageNum + 1, year, pW: extractPositiveWords, nW: extractNegativeWords});
-      return ({
-        extractPositiveWords: {...extractPositiveWords, ...(res?.extractPositiveWords || {})},
-        extractNegativeWords: {...extractNegativeWords, ...(res?.extractNegativeWords || {})},
-      });
-    }
-    return ({
-      extractPositiveWords,
-      extractNegativeWords
-    });
-  } else {
-    return {};
+    const negRes = await fetch("/negative-words.txt");
+    negativeWords = (await negRes.text()).split(/\s+/).filter(Boolean);
   }
 };
 
-export {
-  getAllComments,
+const extractWordsBySentiment = (text, sentimentList) => {
+  const countMap = {};
+  if (!text) return countMap;
+
+  text.split(/\s+/).forEach((word) => {
+    if (sentimentList.includes(word)) {
+      countMap[word] = (countMap[word] || 0) + 1;
+    }
+  });
+
+  return countMap;
 };
 
+const mergeWordCounts = (base, additional) => {
+  for (const [word, count] of Object.entries(additional)) {
+    base[word] = (base[word] || 0) + count;
+  }
+  return base;
+};
+
+const parseTotalPages = (linkHeader) => {
+  const lastLink = linkHeader
+    .split(",")
+    .find((link) => link.includes('rel="last"'));
+  if (!lastLink) return 1;
+
+  const match = lastLink.match(/&page=(\d+)>/);
+  return match ? parseInt(match[1], 10) : 1;
+};
+
+const fetchCommentsPage = async (repoUrl, page, since) => {
+  const res = await api.get(
+    constructGitUrl(
+      repoUrl,
+      `issues/comments?per_page=100&since=${since}&page=${page}`
+    )
+  );
+  return res.json();
+};
+
+const getAllComments = async ({ year }) => {
+  await loadWordLists();
+  const repoUrl = getStorage("repo-url");
+  const since = new Date(year, 0, 1).toISOString();
+
+  const firstRes = await api.get(
+    constructGitUrl(
+      repoUrl,
+      `issues/comments?per_page=100&since=${since}&page=1`
+    )
+  );
+  const firstComments = await firstRes.json();
+  const totalPages = parseTotalPages(firstRes.headers.get("Link") || "");
+
+  let allComments = [...firstComments];
+
+  if (totalPages > 1) {
+    const requests = Array.from({ length: totalPages - 1 }, (_, i) =>
+      fetchCommentsPage(repoUrl, i + 2, since)
+    );
+    const pages = await Promise.all(requests);
+    pages.forEach((pageData) => allComments.push(...pageData));
+  }
+
+  const filtered = allComments.filter(
+    (item) => new Date(item?.created_at).getFullYear() === year
+  );
+
+  const pW = {};
+  const nW = {};
+
+  filtered.forEach(({ body }) => {
+    mergeWordCounts(pW, extractWordsBySentiment(body, positiveWords));
+    mergeWordCounts(nW, extractWordsBySentiment(body, negativeWords));
+  });
+
+  return {
+    extractPositiveWords: pW,
+    extractNegativeWords: nW,
+  };
+};
+
+export { getAllComments };
