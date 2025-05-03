@@ -1,42 +1,34 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import "./style.scss";
-import {
-  addCreatedDate,
-  addTotalCollaborators,
-  replaceCollaborators,
-} from "../dashboard/reducer";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllCollaborators } from "./apiUtils";
-import { getCollaborators, getTotalCommits } from "../dashboard/apiUtils";
 import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import YearSelector from "../../components/year-selector";
+import { useContributorStats } from "../../hooks/useContributorStats";
 
 const ContributorActivity = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { collaborators, createdYear, loading } = useContributorStats();
 
-  const dispatch = useDispatch();
-  const { collaborators, totalCollaborators, createdYear } = useSelector(
-    (state) => state.commitReducer
+  const filterYear = useCallback(
+    (weeks) => {
+      const filteredYear = weeks?.filter(
+        (week) => new Date(week?.w * 1000).getFullYear() === year
+      );
+      const monthlyData = {};
+
+      filteredYear?.forEach((yearItem) => {
+        const date = new Date(yearItem?.w * 1000);
+        const month = date.getMonth() + 1;
+        if (!monthlyData[month]) monthlyData[month] = [];
+        monthlyData[month].push(yearItem);
+      });
+      return monthlyData;
+    },
+    [year]
   );
-  const filterYear = (weeks) => {
-    const filteredYear = weeks?.filter(
-      (week) => new Date(week?.w * 1000).getFullYear() === year
-    );
-    const monthlyData = {};
-
-    filteredYear?.forEach((yearItem) => {
-      const date = new Date(yearItem?.w * 1000);
-      const month = date.getMonth() + 1;
-      if (!monthlyData[month]) monthlyData[month] = [];
-      monthlyData[month].push(yearItem);
-    });
-    return monthlyData;
-  };
 
   // Memoized filtered collaborators based on year
   const filteredCollabs = useMemo(() => {
@@ -55,36 +47,13 @@ const ContributorActivity = () => {
     navigate("/dashboard");
   };
 
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        setLoading(true);
-        if (!totalCollaborators) {
-          const collabRes = await getCollaborators();
-          if (collabRes?.status !== 403) {
-            dispatch(addTotalCollaborators({ data: collabRes?.length }));
-          }
-        }
-        if (!createdYear) {
-          const commitRes = await getTotalCommits();
-          dispatch(addCreatedDate({ data: commitRes?.createdYear }));
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadInitialData();
-  }, [dispatch, totalCollaborators, createdYear]);
-
-  useEffect(() => {
-    if (totalCollaborators && !collaborators.length) {
-      getAllCollaborators(Math.ceil(totalCollaborators / 100)).then((res) => {
-        if (res?.status !== 403) {
-          dispatch(replaceCollaborators({ data: res }));
-        }
-      });
-    }
-  }, [totalCollaborators, collaborators.length, dispatch]);
+  const prepareBubbleChartData = useCallback((filteredCollabs) => {
+    return filteredCollabs.map((collaborator) => ({
+      ...collaborator?.author,
+      contributions: collaborator?.total,
+      weeks: collaborator?.commits,
+    }));
+  }, []);
 
   useEffect(() => {
     if (createdYear) {
@@ -120,13 +89,7 @@ const ContributorActivity = () => {
           <CircularProgress />
         </div>
       ) : (
-        <BubbleChart
-          data={filteredCollabs.map((collaborator) => ({
-            ...collaborator?.author,
-            contributions: collaborator?.total,
-            weeks: collaborator?.commits,
-          }))}
-        />
+        <BubbleChart data={prepareBubbleChartData(filteredCollabs)} />
       )}
     </div>
   );
