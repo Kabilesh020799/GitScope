@@ -1,5 +1,4 @@
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCollaborators,
   getTotalCommits,
@@ -9,10 +8,10 @@ import {
   addTotalCollaborators,
   replaceCollaborators,
 } from "../containers/dashboard/reducer";
-import { getAllCollaborators } from "../containers/contributor-activity/apiUtils";
+import { getAllCollaboratorsByYear } from "../containers/contributor-activity/apiUtils";
 import { useEffect, useState } from "react";
 
-export const useContributorStats = () => {
+export const useContributorStats = (year) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const { collaborators, totalCollaborators, createdYear } = useSelector(
@@ -23,12 +22,14 @@ export const useContributorStats = () => {
     (async () => {
       try {
         setLoading(true);
+
         if (!totalCollaborators) {
           const collabRes = await getCollaborators();
           if (collabRes?.status !== 403) {
             dispatch(addTotalCollaborators({ data: collabRes?.length }));
           }
         }
+
         if (!createdYear) {
           const commitRes = await getTotalCommits();
           dispatch(addCreatedDate({ data: commitRes?.createdYear }));
@@ -40,14 +41,22 @@ export const useContributorStats = () => {
   }, [dispatch, totalCollaborators, createdYear]);
 
   useEffect(() => {
-    if (totalCollaborators && !collaborators.length) {
-      getAllCollaborators(Math.ceil(totalCollaborators / 100)).then((res) => {
-        if (res?.status !== 403) {
-          dispatch(replaceCollaborators({ data: res }));
+    const fetchYearlyCollaborators = async () => {
+      if (createdYear) {
+        try {
+          setLoading(true);
+          const filteredContributors = await getAllCollaboratorsByYear(year);
+          dispatch(replaceCollaborators({ data: filteredContributors }));
+        } catch (error) {
+          console.error("Failed to fetch contributors by year:", error);
+        } finally {
+          setLoading(false);
         }
-      });
-    }
-  }, [totalCollaborators, collaborators.length, dispatch]);
+      }
+    };
+
+    fetchYearlyCollaborators();
+  }, [year, createdYear, dispatch]);
 
   return { loading, collaborators, totalCollaborators, createdYear };
 };

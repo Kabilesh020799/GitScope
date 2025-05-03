@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./style.scss";
 import BubbleChart from "../../components/bubble-chart";
 import { CircularProgress } from "@mui/material";
@@ -10,34 +10,7 @@ const ContributorActivity = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [years, setYears] = useState([]);
   const navigate = useNavigate();
-  const { collaborators, createdYear, loading } = useContributorStats();
-
-  const filterYear = useCallback(
-    (weeks) => {
-      const filteredYear = weeks?.filter(
-        (week) => new Date(week?.w * 1000).getFullYear() === year
-      );
-      const monthlyData = {};
-
-      filteredYear?.forEach((yearItem) => {
-        const date = new Date(yearItem?.w * 1000);
-        const month = date.getMonth() + 1;
-        if (!monthlyData[month]) monthlyData[month] = [];
-        monthlyData[month].push(yearItem);
-      });
-      return monthlyData;
-    },
-    [year]
-  );
-
-  // Memoized filtered collaborators based on year
-  const filteredCollabs = useMemo(() => {
-    if (!collaborators?.length) return [];
-    return collaborators.map((collaborator) => ({
-      ...collaborator,
-      commits: filterYear(collaborator?.weeks),
-    }));
-  }, [collaborators, year]);
+  const { collaborators, createdYear, loading } = useContributorStats(year);
 
   const onSelectYear = (selectedYear) => {
     setYear(selectedYear);
@@ -47,13 +20,14 @@ const ContributorActivity = () => {
     navigate("/dashboard");
   };
 
-  const prepareBubbleChartData = useCallback((filteredCollabs) => {
-    return filteredCollabs.map((collaborator) => ({
-      ...collaborator?.author,
-      contributions: collaborator?.total,
-      weeks: collaborator?.commits,
+  const prepareBubbleChartData = useCallback(() => {
+    return collaborators.map((c) => ({
+      login: c.login,
+      contributions: c.totalCommits,
+      additions: c.totalAdditions,
+      deletions: c.totalDeletions,
     }));
-  }, []);
+  }, [collaborators]);
 
   useEffect(() => {
     if (createdYear) {
@@ -89,7 +63,7 @@ const ContributorActivity = () => {
           <CircularProgress />
         </div>
       ) : (
-        <BubbleChart data={prepareBubbleChartData(filteredCollabs)} />
+        <BubbleChart data={prepareBubbleChartData()} />
       )}
     </div>
   );

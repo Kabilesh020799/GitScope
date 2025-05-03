@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import { dates, months } from "./constants";
 import "./style.scss";
@@ -73,51 +73,52 @@ const Heatmap = ({ data, margin }) => {
 
     svg
       .selectAll("rect")
-      .data(processedData)
-      .enter()
-      .append("rect")
-      .attr("x", (d) => x(d.variable))
-      .attr("y", (d) => y(d.group))
-      .attr("width", x.bandwidth())
-      .attr("height", y.bandwidth())
-      .style("fill", (d) => (d.value ? colorScale(d.value) : "#2A3441"))
-      .style("opacity", 0)
-      .style("cursor", "pointer")
-      .on("mouseover", (event, d) => {
-        d3.select("#tooltip").style("visibility", "visible")
-          .html(`<div style="text-align:center; font-weight:500;">
-          Total Commits: ${d.value}
-        </div>`);
-      })
-      .on("mousemove", (event) => {
-        const tooltipWidth = 120;
-        const tooltipHeight = 50;
-        const pageWidth = window.innerWidth;
-        const pageHeight = window.innerHeight;
+      .data(processedData, (d) => `${d.group}-${d.variable}`)
+      .join(
+        (enter) =>
+          enter
+            .append("rect")
+            .attr("x", (d) => x(d.variable))
+            .attr("y", (d) => y(d.group))
+            .attr("width", x.bandwidth())
+            .attr("height", y.bandwidth())
+            .style("fill", (d) => (d.value ? colorScale(d.value) : "#2A3441"))
+            .style("opacity", 0)
+            .style("cursor", "pointer")
+            .on("mouseover", (event, d) => {
+              d3.select("#tooltip").style("visibility", "visible")
+                .html(`<div style="text-align:center; font-weight:500;">
+                Total Commits: ${d.value}
+              </div>`);
+            })
+            .on("mousemove", (event) => {
+              const tooltipWidth = 150;
+              const tooltipHeight = 50;
+              const xPos = Math.min(
+                event.pageX + 10,
+                window.innerWidth - tooltipWidth - 10
+              );
+              const yPos = Math.min(
+                event.pageY - tooltipHeight,
+                window.innerHeight - tooltipHeight - 10
+              );
 
-        let xPos = event.pageX - 400;
-        let yPos = event.pageY - 150;
-
-        if (xPos + tooltipWidth > pageWidth) {
-          xPos = event.pageX - tooltipWidth - 15;
-        }
-        if (yPos + tooltipHeight > pageHeight) {
-          yPos = event.pageY - tooltipHeight - 15;
-        }
-
-        d3.select("#tooltip")
-          .style("left", `${xPos}px`)
-          .style("top", `${yPos}px`);
-      })
-      .on("mouseleave", () => {
-        d3.select("#tooltip").style("visibility", "hidden");
-      })
-      .on("click", (event, d) => {
-        handleDayClick(d.group, d.variable);
-      })
-      .transition()
-      .duration(800)
-      .style("opacity", 1);
+              d3.select("#tooltip")
+                .style("left", `${xPos}px`)
+                .style("top", `${yPos}px`);
+            })
+            .on("mouseleave", () => {
+              d3.select("#tooltip").style("visibility", "hidden");
+            })
+            .on("click", (event, d) => {
+              handleDayClick(d.group, d.variable);
+            })
+            .call((enter) =>
+              enter.transition().duration(800).style("opacity", 1)
+            ),
+        (update) => update,
+        (exit) => exit.remove()
+      );
   }, [processedData, margin]);
 
   const handleDayClick = (month, day) => {
@@ -139,16 +140,18 @@ const Heatmap = ({ data, margin }) => {
     setExpandedMessages({});
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowModal(false);
-  };
+    setSelectedDayCommits([]);
+    setSelectedDate("");
+  }, []);
 
-  const toggleExpand = (index) => {
+  const toggleExpand = useCallback((index) => {
     setExpandedMessages((prev) => ({
       ...prev,
       [index]: !prev[index],
     }));
-  };
+  }, []);
 
   return (
     <div className="heatmap-container">

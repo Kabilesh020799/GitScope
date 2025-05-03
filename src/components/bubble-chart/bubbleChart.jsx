@@ -5,9 +5,17 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const constructBubble = () => {
-    const height = width;
+  useEffect(() => {
+    if (!data?.length) return;
 
+    const svg = d3.select(svgRef.current);
+    const tooltip = d3.select(tooltipRef.current);
+
+    // Reset previous chart
+    svg.selectAll("*").remove();
+    tooltip.style("opacity", 0);
+
+    const height = width;
     const nodesData = data.map((item, idx) => ({
       id: idx,
       value: item?.contributions || 0,
@@ -23,19 +31,18 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
       d3.hierarchy({ children: nodesData }).sum((d) => d.value)
     );
 
-    const svg = d3
-      .select(svgRef.current)
+    svg
       .attr("width", width)
       .attr("height", height)
       .attr("viewBox", [-margin, -margin, width, height])
-      .style("max-width", "100%")
+      .style("maxWidth", "100%")
       .style("height", "auto")
-      .style("font-family", "sans-serif")
+      .style("fontFamily", "sans-serif")
       .attr("text-anchor", "middle");
 
     const color = d3.scaleOrdinal(d3.schemeTableau10);
 
-    const node = svg
+    const nodeGroup = svg
       .append("g")
       .selectAll("g")
       .data(root.leaves())
@@ -44,7 +51,8 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
       .attr("id", (d) => `node-${d.data.id}`)
       .style("cursor", "pointer");
 
-    node
+    // Draw circles
+    nodeGroup
       .append("circle")
       .attr("r", 0)
       .attr("fill-opacity", 0.7)
@@ -53,48 +61,16 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
       .duration(800)
       .attr("r", (d) => d.r || 0);
 
-    node
+    // Add text
+    nodeGroup
       .append("text")
       .text((d) => (d.r > 20 ? d.data.value : ""))
       .attr("dy", "0.35em")
       .style("fill", "#fff")
-      .style("font-size", (d) => (d.r > 40 ? "14px" : "10px"))
-      .style("pointer-events", "none");
+      .style("fontSize", (d) => (d.r > 40 ? "14px" : "10px"))
+      .style("pointerEvents", "none");
 
-    node
-      .on("mouseover", function (event, d) {
-        // Zoom circle
-        d3.select(this)
-          .select("circle")
-          .transition()
-          .duration(200)
-          .attr("r", (d.r || 0) * 1.1);
-
-        // Show tooltip
-        d3.select(tooltipRef.current).style("opacity", 1).html(`
-            <div style="padding: 8px 12px; color: white;">
-              <div><strong>${d.data.login}</strong></div>
-              <div>${d.data.value} Contributions</div>
-            </div>
-          `);
-      })
-      .on("mousemove", function (event) {
-        d3.select(tooltipRef.current)
-          .style("left", `${event.pageX + 15}px`)
-          .style("top", `${event.pageY - 20}px`);
-      })
-      .on("mouseleave", function (event, d) {
-        // Reset circle size
-        d3.select(this)
-          .select("circle")
-          .transition()
-          .duration(200)
-          .attr("r", d.r || 0);
-
-        // Hide tooltip
-        d3.select(tooltipRef.current).style("opacity", 0);
-      });
-
+    // Drag behavior
     const drag = d3
       .drag()
       .on("start", function () {
@@ -107,15 +83,36 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
         );
       });
 
-    node.call(drag);
-  };
+    nodeGroup
+      .on("mouseover", function (event, d) {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(200)
+          .attr("r", d.r * 1.1);
 
-  useEffect(() => {
-    if (data && data.length) {
-      d3.select(svgRef.current).selectAll("*").remove();
-      d3.select(tooltipRef.current).style("opacity", 0);
-      constructBubble();
-    }
+        tooltip.style("opacity", 1).html(
+          `<div style="padding: 8px 12px; color: white;">
+              <strong>${d.data.login}</strong><br/>
+              ${d.data.value} Contributions
+            </div>`
+        );
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("left", `${event.pageX + 15}px`)
+          .style("top", `${event.pageY - 20}px`);
+      })
+      .on("mouseleave", function (event, d) {
+        d3.select(this)
+          .select("circle")
+          .transition()
+          .duration(200)
+          .attr("r", d.r || 0);
+
+        tooltip.style("opacity", 0);
+      })
+      .call(drag);
   }, [data, width, margin]);
 
   return (
@@ -140,7 +137,6 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
           fontSize: "14px",
           pointerEvents: "none",
           opacity: 0,
-          transform: "translate(-50%, -50%)",
           whiteSpace: "nowrap",
           zIndex: 1000,
         }}

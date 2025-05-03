@@ -20,10 +20,12 @@ const Card = ({ className, name, value, path, loading }) => {
         </div>
       </div>
 
-      <NavLink to={path} className="card-link">
-        <span>See detailed view</span>
-        <i className="fa-solid fa-arrow-right"></i>
-      </NavLink>
+      {path && (
+        <NavLink to={path} className="card-link">
+          <span>See detailed view</span>
+          <i className="fa-solid fa-arrow-right"></i>
+        </NavLink>
+      )}
     </div>
   );
 };

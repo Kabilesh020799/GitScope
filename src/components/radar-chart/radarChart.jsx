@@ -5,6 +5,8 @@ const RadarChart = (props) => {
   const { data } = props;
 
   useEffect(() => {
+    if (!data || data.length === 0) return null;
+
     const width = 500,
       height = 500;
     const margin = { top: 50, right: 80, bottom: 50, left: 80 },
@@ -87,8 +89,9 @@ const RadarChart = (props) => {
       )
       .attr("r", 4)
       .attr("fill", "darkblue");
-    return () => d3.select(".radar-chart").html("");
-  }, []);
+
+    return () => d3.select(".radar-chart").selectAll("*").remove();
+  }, [data]);
 
   return <div className="radar-chart" />;
 };
