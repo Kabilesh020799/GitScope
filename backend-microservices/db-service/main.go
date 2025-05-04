@@ -18,12 +18,21 @@ type DBServer struct {
 }
 
 func main() {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		log.Fatal("DATABASE_URL environment variable not set")
+	}
+
+	log.Println("Connecting to database...")
+	log.Println(os.Getenv("DATABASE_URL"))
+
 	var err error
 	conn, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-
 	if err != nil {
 		log.Fatalf("DB connect error: %v", err)
 	}
+
+	log.Println("✅ Connected to database")
 
 	listener, err := net.Listen("tcp", ":50052")
 	if err != nil {
