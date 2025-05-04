@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    ports:
+      - "50051:50051"
+    networks:
+      - gitscope-net
+    depends_on:
+      - db-service
+
+  api-service:
+    build:
+      context: .
+      dockerfile: ./api-service/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+    networks:
+      - gitscope-net
+
+  db-service:
+    build:
+      context: .
+      dockerfile: ./db-service/Dockerfile
+    ports:
+      - "50052:50052"
+    networks:
+      - gitscope-net
+
+networks:
+  gitscope-net:
+    driver: bridge

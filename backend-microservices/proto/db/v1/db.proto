@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package db.v1;
+option go_package = "./";
+
+service DBService {
+  rpc ExistsUser(ExistsUserRequest) returns (ExistsUserResponse);
+  rpc InsertUser(InsertUserRequest) returns (InsertUserResponse);
+  rpc GetUserCredentials(GetUserCredentialsRequest) returns (GetUserCredentialsResponse);
+}
+
+message ExistsUserRequest {
+  string username = 1;
+}
+
+message ExistsUserResponse {
+  bool exists = 1;
+}
+
+message InsertUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message InsertUserResponse {}
+
+message GetUserCredentialsRequest {
+  string username = 1;
+}
+
+message GetUserCredentialsResponse {
+  string password = 1;
+  int32 user_id = 2;
+}
