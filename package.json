@@ -2,6 +2,7 @@
   "name": "project",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": false,
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -30,7 +31,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "eslintConfig": {
     "extends": [
@@ -60,6 +62,7 @@
     "babel-jest": "^29.7.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "source-map-explorer": "^2.5.3"
   }
 }
