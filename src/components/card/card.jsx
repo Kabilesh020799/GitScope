@@ -13,7 +13,13 @@ const Card = ({ className, name, value, path, loading }) => {
 
         <div className="card-value">
           {loading ? (
-            <Skeleton variant="text" width={80} height={40} animation="wave" />
+            <Skeleton
+              data-testid="progressbar"
+              variant="text"
+              width={80}
+              height={40}
+              animation="wave"
+            />
           ) : (
             <span>{value}</span>
           )}
