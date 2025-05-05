@@ -1,12 +1,18 @@
-import React from "react";
-import Login from "../containers/login";
-import Dashboard from "../containers/dashboard/Dashboard";
-import CommitActivity from "../containers/commit-activity";
-import ContributorActivity from "../containers/contributor-activity";
-import CommentActivity from "../containers/comment-activity";
-import ContributorRelation from "../containers/contributor-relation";
-import UserContributions from "../containers/user-contributions";
-import Signin from "../containers/signin";
+import React, { lazy } from "react";
+const Login = lazy(() => import("../containers/login"));
+const Dashboard = lazy(() => import("../containers/dashboard/Dashboard"));
+const CommitActivity = lazy(() => import("../containers/commit-activity"));
+const ContributorActivity = lazy(() =>
+  import("../containers/contributor-activity")
+);
+const CommentActivity = lazy(() => import("../containers/comment-activity"));
+const ContributorRelation = lazy(() =>
+  import("../containers/contributor-relation")
+);
+const UserContributions = lazy(() =>
+  import("../containers/user-contributions")
+);
+const Signin = lazy(() => import("../containers/signin"));
 
 const routes = [
   {
