@@ -1,0 +1,21 @@
+.tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 8px;
+  font: 12px sans-serif;
+  background: lightgrey;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.graph-container {
+  width: calc(100% - 60px);
+  height: calc(100% - 60px);
+  padding: 30px 30px;
+  overflow: hidden; // You might change this to auto if you want scrolling as well
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
