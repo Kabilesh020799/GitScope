@@ -1,8 +1,46 @@
 .App {
-  height: 100vh;
+  min-height: 100vh;
   &.appload {
     display: flex;
     justify-content: center;
     align-items: center;
   }
+}
+
+.sign-out-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  color: var(--text);
+  background: rgba(15, 27, 46, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  font: inherit;
+}
+
+.route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .sign-out-button {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
+
+.sign-out-button:hover,
+.sign-out-button:focus-visible {
+  background: #263652;
+  outline: 2px solid #9eb7df;
+  outline-offset: 2px;
 }

@@ -8,10 +8,12 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   const [error, setError] = useState("");
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const signin = useCallback(
     async ({ username, password }) => {
       setError("");
+      setIsSigningIn(true);
       const res = await onSignin({
         username,
         password,
@@ -21,9 +23,10 @@ export const useAuth = () => {
       if (res.success) {
         navigate("/search");
       }
+      setIsSigningIn(false);
     },
     [dispatch, navigate]
   );
 
-  return { signin, error };
+  return { signin, error, isSigningIn };
 };

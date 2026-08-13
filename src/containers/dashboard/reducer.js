@@ -74,6 +74,9 @@ const commitSlice = createSlice({
     clearPullRequests(state) {
       state.pullRequests = [];
     },
+    resetDashboard() {
+      return commitSlice.getInitialState();
+    },
   },
 });
 
@@ -98,6 +101,7 @@ export const {
   clearPulls,
   setPullRequests,
   clearPullRequests,
+  resetDashboard,
 } = commitSlice.actions;
 
 export default commitSlice.reducer;

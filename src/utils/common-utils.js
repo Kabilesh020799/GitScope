@@ -11,6 +11,8 @@ const getStorage = (key) => {
   }
 };
 
+const removeStorage = (key) => localStorage.removeItem(key);
+
 const constructGitUrl = (repoUrl, key) => {
   if (!repoUrl) {
     console.error("Repo URL is not available!");
@@ -35,10 +37,13 @@ const extractRepoName = (url) => {
   return name.charAt(0).toUpperCase() + name.slice(1);
 };
 
-const getHeaders = (bearerToken) => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${bearerToken}`,
-});
+const getHeaders = (bearerToken) => {
+  const headers = { "Content-Type": "application/json" };
+  if (typeof bearerToken === "string" && bearerToken.trim()) {
+    headers.Authorization = `Bearer ${bearerToken.trim()}`;
+  }
+  return headers;
+};
 
 const getLinkPage = (linkHeader, relation) => {
   const link = (linkHeader || "")
@@ -64,6 +69,7 @@ const mapWithConcurrency = async (items, worker, limit = 6) => {
 export {
   setStorage,
   getStorage,
+  removeStorage,
   constructGitUrl,
   extractRepoName,
   getHeaders,

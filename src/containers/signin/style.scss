@@ -3,20 +3,65 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(45, 212, 191, 0.11), transparent 30rem),
+    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 28rem),
+    var(--bg);
 
   .auth-container {
-    background: #151b23;
+    background: linear-gradient(145deg, rgba(20, 34, 57, 0.98), rgba(10, 21, 38, 0.98));
     color: white;
     padding: 2rem;
-    width: 400px;
-    border: 1px solid #3d444db3;
-    border-radius: 6px;
-    box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04);
+    width: min(430px, 100%);
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+
+    .auth-brand {
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      margin: 0 auto 1.25rem;
+      border-radius: 0.9rem;
+      color: #041311;
+      background: var(--accent);
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .auth-eyebrow {
+      margin: 0;
+      color: var(--accent);
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
 
     h1 {
       font-size: 24px;
-      margin-bottom: 1.5rem;
+      margin: 0.45rem 0 0.5rem;
       text-align: center;
+      letter-spacing: -0.025em;
+    }
+
+    .auth-intro,
+    .auth-footnote {
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .auth-intro {
+      margin: 0 0 1.5rem;
+    }
+
+    .auth-footnote {
+      margin: 1rem 0 0;
+      font-size: 0.78rem;
     }
 
     .auth-form {
@@ -29,42 +74,60 @@
         display: flex;
         justify-content: space-between;
 
-        .forgot-link {
-          font-size: 0.875rem;
-          color: #4493f8;
-        }
       }
 
       input {
-        padding: 0.5rem;
-        border: 1px solid #d0d7de;
-        border-radius: 6px;
+        min-height: 46px;
+        padding: 0.65rem 0.75rem;
+        color: var(--text);
+        background: rgba(3, 10, 22, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 0.65rem;
         margin-bottom: 1rem;
+
+        &:focus {
+          outline: none;
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.16);
+        }
       }
 
       .submit-btn {
         padding: 0.75rem;
-        background-color: #2da44e;
+        min-height: 46px;
+        background-color: var(--accent-strong);
         border: none;
         color: white;
         font-weight: bold;
-        border-radius: 6px;
+        border-radius: 0.65rem;
         cursor: pointer;
 
         &:hover {
-          background-color: #218739;
+          background-color: #0d9488;
+        }
+
+        &:disabled {
+          opacity: 0.65;
+          cursor: wait;
         }
       }
-    }
 
-    .signup-callout {
-      text-align: center;
-      font-size: 0.875rem;
-      margin-top: 1rem;
-
-      .signup-link {
-        color: #4493f8;
+      .error-message {
+        margin: 0 0 1rem;
+        padding: 0.75rem;
+        color: #fecaca;
+        background: rgba(127, 29, 29, 0.3);
+        border: 1px solid rgba(248, 113, 113, 0.35);
+        border-radius: 0.65rem;
+        font-size: 0.875rem;
+        line-height: 1.45;
       }
     }
+  }
+}
+
+@media (max-width: 480px) {
+  .github-login .auth-container {
+    padding: 1.5rem;
   }
 }

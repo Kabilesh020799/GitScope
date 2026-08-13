@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 const Signin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { signin, error } = useAuth();
+  const { signin, error, isSigningIn } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,7 +15,10 @@ const Signin = () => {
   return (
     <div className="github-login">
       <div className="auth-container">
-        <h1>Sign in to GitHub</h1>
+        <div className="auth-brand" aria-hidden="true">G</div>
+        <p className="auth-eyebrow">Welcome back</p>
+        <h1>Sign in to GitScope</h1>
+        <p className="auth-intro">Connect to your repository analytics workspace.</p>
         <form className="auth-form" onSubmit={handleLogin}>
           <label htmlFor="username">Username or email address</label>
           <input
@@ -27,12 +30,7 @@ const Signin = () => {
             onChange={(e) => setUsername(e.target.value)}
           />
 
-          <label htmlFor="password">
-            Password
-            <a href="/forgot" className="forgot-link">
-              Forgot password?
-            </a>
-          </label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
@@ -42,19 +40,13 @@ const Signin = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" role="alert">{error}</div>}
 
-          <button type="submit" className="submit-btn">
-            Sign in
+          <button type="submit" className="submit-btn" disabled={isSigningIn}>
+            {isSigningIn ? "Signing in…" : "Sign in"}
           </button>
         </form>
-
-        <div className="signup-callout">
-          New to GitHub?{" "}
-          <a href="/signup" className="signup-link">
-            Create an account
-          </a>
-        </div>
+        <p className="auth-footnote">Your credentials are used only to establish your GitScope session.</p>
       </div>
     </div>
   );

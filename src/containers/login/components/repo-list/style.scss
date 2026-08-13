@@ -1,8 +1,9 @@
 .repo-list-container {
-  padding: 1rem;
+  width: min(960px, calc(100% - 2rem));
+  margin: 0 auto 3rem;
   color: #cbd5e1;
   z-index: 10;
-  padding: 20px;
+  position: relative;
 }
 
 .repo-list {
@@ -12,6 +13,9 @@
 }
 
 .repo-list-item {
+  width: 100%;
+  color: inherit;
+  border: 1px solid var(--border);
   background-color: #1e293b;
   padding: 1rem;
   margin-bottom: 0.5rem;
@@ -21,6 +25,7 @@
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.2s ease;
+  text-align: left;
 
   &:hover {
     background-color: #334155;
@@ -29,6 +34,13 @@
   .repo-content {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    gap: 0.25rem;
+
+    span {
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
   }
 
   .arrow {

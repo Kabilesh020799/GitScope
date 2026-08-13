@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import CircularProgress from "@mui/material/CircularProgress";
 import { motion } from "framer-motion";
+import { NavLink } from "react-router-dom";
 
 import Card from "../../components/card";
 import "./style.scss";
@@ -18,14 +19,17 @@ const Dashboard = () => {
   if (!repoUrl) {
     return (
       <div className="dashboard-error">
-        <p>No repository selected. Please go back and choose a repository.</p>
+        <span className="dashboard-error-mark" aria-hidden="true">↗</span>
+        <h1>Choose a repository first</h1>
+        <p>Select a GitHub repository to load its activity and contributor insights.</p>
+        <NavLink to="/search">Choose a repository</NavLink>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
+      <div className="dashboard-loading" role="status" aria-label="Loading repository insights">
         <CircularProgress size={80} thickness={4} />
       </div>
     );

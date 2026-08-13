@@ -4,7 +4,7 @@ const PARTICLES_OPTIONS = {
       value: "#040E21",
     },
   },
-  fpsLimit: 120,
+  fpsLimit: 45,
   interactivity: {
     events: {
       onClick: {
@@ -45,7 +45,7 @@ const PARTICLES_OPTIONS = {
         default: "bounce",
       },
       random: false,
-      speed: 6,
+      speed: 1.5,
       straight: false,
     },
     number: {
@@ -53,7 +53,7 @@ const PARTICLES_OPTIONS = {
         enable: true,
         area: 800,
       },
-      value: 80,
+      value: 42,
     },
     opacity: {
       value: 0.5,

@@ -2,7 +2,8 @@
   background: #2c2c3e;
   border-radius: 16px;
   padding: 24px 20px;
-  width: 260px;
+  width: 100%;
+  min-height: 210px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -10,11 +11,10 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
-  cursor: pointer;
 }
 
 .card:hover {
-  transform: scale(1.05);
+  transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
@@ -51,4 +51,23 @@
 
 .card-link:hover {
   color: #42a5f5;
+}
+
+.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.card {
+  position: relative;
+}
+
+.card:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.card-link:focus-visible {
+  outline: none;
 }

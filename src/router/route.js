@@ -5,7 +5,13 @@ import { CircularProgress } from "@mui/material";
 
 const MainRoute = () => {
   return (
-    <Suspense fallback={<CircularProgress size={60} />}>
+    <Suspense
+      fallback={
+        <div className="route-loading" role="status" aria-label="Loading page">
+          <CircularProgress size={48} color="inherit" />
+        </div>
+      }
+    >
       <Routes>
         {routes?.map((route) => (
           <Route
