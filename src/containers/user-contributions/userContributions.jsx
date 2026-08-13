@@ -21,6 +21,7 @@ const UserContributions = () => {
   const [dropdownValue, setDropdownValue] = useState("");
   const [radarData, setRadarData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const onClickDashboard = useCallback(() => {
@@ -29,6 +30,7 @@ const UserContributions = () => {
 
   useEffect(() => {
     setLoading(true);
+    setError("");
     let active = true;
     getAllCollaborators(repoUrl)
       .then((res) => {
@@ -38,6 +40,7 @@ const UserContributions = () => {
       })
       .catch((err) => {
         console.error(err);
+        if (active) setError("We couldn't load the contributor list. Please try again.");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -49,6 +52,7 @@ const UserContributions = () => {
     const selectedUser = value.target.value;
     setDropdownValue(selectedUser);
     setLoading(true);
+    setError("");
     fetchGitHubData(selectedUser)
       .then((res) => {
         setRadarData([
@@ -59,6 +63,7 @@ const UserContributions = () => {
       })
       .catch((err) => {
         console.error(err);
+        setError("We couldn't load this contributor's activity. Please try again.");
       })
       .finally(() => {
         setLoading(false);
@@ -67,34 +72,23 @@ const UserContributions = () => {
 
   return (
     <div className="user-contributions">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "50px",
-          marginBottom: "50px",
-          marginTop: "30px",
-        }}
-      >
-        <h1 className="user-contributions-heading">
-          Get to know about each User&apos;s contribution
-        </h1>
+      <header className="user-contributions-header">
+        <div><p className="analytics-eyebrow">Individual impact</p><h1 className="user-contributions-heading">Contributor profile</h1><p>Compare commits, pull requests, and code reviews for each teammate.</p></div>
         <button className="commit-activity-btn" onClick={onClickDashboard}>
-          Go to Dashboard
+          <span aria-hidden="true">←</span> Dashboard
         </button>
-      </div>
+      </header>
+      <section className="user-contributions-panel" aria-label="Contributor activity explorer">
       <FormControl className="user-contributions-dropdown">
-        <InputLabel id="demo-simple-select-label" style={{ color: "#8193b2" }}>
+        <InputLabel id="contributor-select-label">
           Select User
         </InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId="contributor-select-label"
+          id="contributor-select"
           label="Select User"
           onChange={onSelectDropdown}
           value={dropdownValue}
-          style={{ color: "#8193b2" }}
         >
           {collaborators?.map((collaborator) => (
             <MenuItem
@@ -107,24 +101,18 @@ const UserContributions = () => {
         </Select>
       </FormControl>
       {dropdownValue ? (
-        <span style={{ color: "#8193b2" }}>
-          Blue Line indicates the user contribution
-        </span>
+        <p className="user-contributions-legend"><i aria-hidden="true" /> Activity relative to this contributor&apos;s strongest metric</p>
       ) : null}
+      {error && <div className="user-contributions-error" role="alert">{error}</div>}
       {loading ? (
-        <div
-          style={{
-            height: "calc(100% - 100px)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <div className="user-contributions-loading" role="status">
           <CircularProgress />
+          <span>Loading contributor activity…</span>
         </div>
       ) : radarData ? (
         <RadarChart data={radarData} />
-      ) : null}
+      ) : !error ? <div className="user-contributions-empty"><strong>Select a contributor</strong><span>Their activity profile will appear here.</span></div> : null}
+      </section>
     </div>
   );
 };

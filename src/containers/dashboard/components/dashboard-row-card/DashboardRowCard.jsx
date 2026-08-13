@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const DashboardRowCard = ({ title, path, linkText }) => (
   <div className="row-card">
+    <span className="row-icon" aria-hidden="true">↗</span>
     <span className="row-text">{title}</span>
     <NavLink className="nav-link" to={path}>
       {linkText}

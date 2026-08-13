@@ -4,9 +4,11 @@ import { NavLink } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 
 const Card = ({ className, name, value, path, loading }) => {
+  const icons = { Commits: "↗", Contributors: "◎", "Active Pulls": "⇄" };
   return (
     <div className={`card ${className || ""}`}>
       <div className="card-content">
+        <span className="card-icon" aria-hidden="true">{icons[name] || "◇"}</span>
         <div className="card-name">
           {name || <Skeleton variant="text" width={120} height={24} />}
         </div>
@@ -21,7 +23,7 @@ const Card = ({ className, name, value, path, loading }) => {
               animation="wave"
             />
           ) : (
-            <span>{value}</span>
+            <span>{Number(value || 0).toLocaleString()}</span>
           )}
         </div>
       </div>

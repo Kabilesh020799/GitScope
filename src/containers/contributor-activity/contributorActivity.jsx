@@ -43,14 +43,12 @@ const ContributorActivity = () => {
 
   return (
     <div className="contributor-activity">
-      <div className="contributor-activity-header">
-        <h1 className="contributor-activity-heading">
-          Picture of the user contributions to your project
-        </h1>
+      <header className="contributor-activity-header">
+        <div><p className="analytics-eyebrow">Team pulse</p><h1 className="contributor-activity-heading">Contributor activity</h1><p>Compare commit volume and discover the people moving the project forward.</p></div>
         <button className="contributor-activity-btn" onClick={onClickDashboard}>
-          Go to Dashboard
+          <span aria-hidden="true">←</span> Dashboard
         </button>
-      </div>
+      </header>
 
       <YearSelector
         years={years}
@@ -60,11 +58,14 @@ const ContributorActivity = () => {
       />
 
       {loading ? (
-        <div className="contributor-activity-loading">
+        <div className="contributor-activity-loading" role="status">
           <CircularProgress />
+          <span>Calculating contributor activity…</span>
         </div>
-      ) : (
+      ) : collaborators.length ? (
         <BubbleChart data={prepareBubbleChartData()} />
+      ) : (
+        <div className="contributor-activity-empty"><strong>No contributor activity found</strong><span>Try another reporting period.</span></div>
       )}
     </div>
   );

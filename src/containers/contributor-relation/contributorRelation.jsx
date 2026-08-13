@@ -10,6 +10,7 @@ const ContributorRelation = () => {
   const { pullRequests } = useSelector((state) => state.commitReducer);
 
   const [highlightedPrId, setHighlightedPrId] = useState(null);
+  const [prInput, setPrInput] = useState("");
   const navigate = useNavigate();
 
   const onClickDashboard = () => {
@@ -19,28 +20,25 @@ const ContributorRelation = () => {
 
   return (
     <div className="contributor-relation">
-      <div className="contributor-relation-header">
-        <h1 className="contributor-relation-heading">
-          Some Relations between the Collaborators with the active pullRequests
-        </h1>
+      <header className="contributor-relation-header">
+        <div><p className="analytics-eyebrow">Collaboration map</p><h1 className="contributor-relation-heading">Contributor relationships</h1><p>Explore who authors and reviews pull requests across this repository.</p></div>
         <button className="commit-activity-btn" onClick={onClickDashboard}>
-          Go to Dashboard
+          <span aria-hidden="true">←</span> Dashboard
         </button>
-      </div>
-      <div className="contributor-relation-content">
-        <span className="content-head">
-          Please specify the pullRequest id you want to check
-        </span>
+      </header>
+      <form className="contributor-relation-content" onSubmit={(event) => { event.preventDefault(); setHighlightedPrId(prInput.trim() || null); }}>
+        <label className="content-head" htmlFor="pr-highlight">Highlight a pull request</label>
+        <div className="content-control">
         <input
+          id="pr-highlight"
           className="content-input"
-          placeholder="Enter PR ID and press ENTER"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setHighlightedPrId(e.target.value);
-            }
-          }}
+          inputMode="numeric"
+          placeholder="e.g. 142"
+          value={prInput}
+          onChange={(event) => setPrInput(event.target.value)}
         />
-      </div>
+        <button type="submit">Highlight</button></div>
+      </form>
       {loading ? (
         <div className="contributor-relation-loader">
           <CircularProgress />
@@ -50,7 +48,7 @@ const ContributorRelation = () => {
           pullRequests={pullRequests}
           highlightedPrId={highlightedPrId}
         />
-      ) : null}
+      ) : <div className="contributor-relation-empty"><strong>No review relationships yet</strong><span>Relationships appear when pull requests receive reviews.</span></div>}
     </div>
   );
 };

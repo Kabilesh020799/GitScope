@@ -1,9 +1,13 @@
 .type-animation {
-  font-family: 'Space Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
 }
 .cursor {
   animation: blink-caret 0.75s step-end infinite;
   border-right: 1px solid;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; }
 }
 
 @keyframes blink-caret {

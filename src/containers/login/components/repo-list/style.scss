@@ -4,6 +4,13 @@
   color: #cbd5e1;
   z-index: 10;
   position: relative;
+
+  h2 {
+    margin: 0 0 1rem;
+    color: var(--text);
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    letter-spacing: -0.025em;
+  }
 }
 
 .repo-list {
@@ -16,26 +23,31 @@
   width: 100%;
   color: inherit;
   border: 1px solid var(--border);
-  background-color: #1e293b;
-  padding: 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(24, 42, 66, 0.94), rgba(13, 27, 47, 0.96));
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.7rem;
+  border-radius: 0.9rem;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.2s ease;
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
   text-align: left;
 
   &:hover {
-    background-color: #334155;
+    border-color: rgba(45, 212, 191, 0.45);
+    transform: translateX(4px);
   }
+
+  &:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
   .repo-content {
     display: flex;
     flex-direction: column;
     min-width: 0;
     gap: 0.25rem;
+
+    strong { color: var(--text); font-size: 1rem; }
 
     span {
       color: var(--muted);
@@ -45,7 +57,7 @@
 
   .arrow {
     font-size: 1.5rem;
-    color: #94a3b8;
+    color: var(--accent);
     transition: transform 0.2s ease;
 
     .repo-list-item:hover & {
@@ -53,3 +65,5 @@
     }
   }
 }
+
+@media (prefers-reduced-motion: reduce) { .repo-list-item, .repo-list-item .arrow { transition: none; } }

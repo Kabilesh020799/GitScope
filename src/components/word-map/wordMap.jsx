@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import cloud from "d3-cloud";
 
@@ -11,16 +11,23 @@ const WordMap = (props) => {
     rotate = () => -45,
     fillColor = "#69b3a2",
   } = props;
+  const rootRef = useRef(null);
 
   useEffect(() => {
+    const rootNode = rootRef.current;
     const width = 450 - margin.left - margin.right;
     const height = 450 - margin.top - margin.bottom;
 
     var svg = d3
-      .select(`.word-cloud-${classKey}`)
+      .select(rootNode)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr("role", "img")
+      .attr("aria-label", `${classKey || "Comment"} word cloud`)
+      .style("width", "100%")
+      .style("height", "auto")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -54,11 +61,11 @@ const WordMap = (props) => {
     }
 
     return () => {
-      d3.select(`.word-cloud-${classKey}`).selectAll("*").remove();
+      d3.select(rootNode).selectAll("*").remove();
     };
   }, [words, margin, classKey, fontSize, rotate, fillColor]);
 
-  return <div className={`word-cloud-${classKey || ""}`} />;
+  return <div ref={rootRef} className={`word-cloud word-cloud-${classKey || ""}`} />;
 };
 
 export default WordMap;

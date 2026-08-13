@@ -8,6 +8,19 @@
     radial-gradient(circle at 20% 15%, rgba(45, 212, 191, 0.11), transparent 30rem),
     radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 28rem),
     var(--bg);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 26rem;
+    height: 26rem;
+    left: -13rem;
+    bottom: -13rem;
+    border: 1px solid rgba(45, 212, 191, 0.12);
+    border-radius: 50%;
+  }
 
   .auth-container {
     background: linear-gradient(145deg, rgba(20, 34, 57, 0.98), rgba(10, 21, 38, 0.98));
@@ -17,6 +30,7 @@
     border: 1px solid var(--border);
     border-radius: 1.25rem;
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+    position: relative;
 
     .auth-brand {
       display: grid;
@@ -29,6 +43,7 @@
       background: var(--accent);
       font-size: 1.25rem;
       font-weight: 800;
+      box-shadow: 0 10px 30px rgba(45, 212, 191, 0.2);
     }
 
     .auth-eyebrow {
@@ -46,6 +61,7 @@
       margin: 0.45rem 0 0.5rem;
       text-align: center;
       letter-spacing: -0.025em;
+      color: var(--text);
     }
 
     .auth-intro,
@@ -101,9 +117,12 @@
         font-weight: bold;
         border-radius: 0.65rem;
         cursor: pointer;
+        transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 
         &:hover {
           background-color: #0d9488;
+          transform: translateY(-1px);
+          box-shadow: 0 10px 24px rgba(13, 148, 136, 0.22);
         }
 
         &:disabled {
@@ -123,6 +142,8 @@
         line-height: 1.45;
       }
     }
+
+    .auth-footnote span { margin-right: 0.35rem; color: var(--accent); font-size: 0.55rem; vertical-align: middle; }
   }
 }
 
@@ -131,3 +152,5 @@
     padding: 1.5rem;
   }
 }
+
+@media (prefers-reduced-motion: reduce) { .github-login .auth-container .auth-form .submit-btn { transition: none; } }

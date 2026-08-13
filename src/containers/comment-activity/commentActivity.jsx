@@ -54,20 +54,14 @@ const CommentActivity = () => {
 
   return (
     <div className="comment-activity">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "50px",
-          marginBottom: "50px",
-        }}
-      >
-        <h1 className="heading">Sentiment Analysis of the Commit Messages</h1>
+      <header className="comment-activity-header">
+        <div><p className="analytics-eyebrow">Language signals</p>
+        <h1 className="heading">Commit message sentiment</h1>
+        <p>See the language patterns shaping collaboration and project momentum.</p></div>
         <button className="commit-activity-btn" onClick={onClickDashboard}>
-          Go to Dashboard
+          <span aria-hidden="true">←</span> Dashboard
         </button>
-      </div>
+      </header>
       <div className="comment-activity-contents">
         <YearSelector
           years={availableYears}
@@ -90,7 +84,7 @@ const CommentActivity = () => {
       <div className="barcharts">
         {(Object.keys(comments?.extractPositiveWords || {}).length > 0 ||
           Object.keys(comments?.extractNegativeWords || {}).length > 0) && (
-          <h1>Some of the most frequently used</h1>
+          <h2>Most frequently used words</h2>
         )}
         <div className="barcharts-contents">
           {renderBarChartSection(
@@ -104,6 +98,9 @@ const CommentActivity = () => {
             "negative"
           )}
         </div>
+        {!Object.keys(comments?.extractPositiveWords || {}).length && !Object.keys(comments?.extractNegativeWords || {}).length && (
+          <div className="comment-empty"><strong>No sentiment data yet</strong><span>No qualifying commit messages were found for {year}.</span></div>
+        )}
       </div>
     </div>
   );

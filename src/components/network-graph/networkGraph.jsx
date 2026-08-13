@@ -108,7 +108,7 @@ const NetworkGraph = ({ pullRequests, highlightedPrId }) => {
 
     const svg = d3.select(svgRef.current);
     const tooltip = d3.select(tooltipRef.current);
-    const width = +svg.attr("width");
+    const width = 1200;
     const height = +svg.attr("height");
     const container = svg.select(".graph-content");
     container.selectAll("*").remove();
@@ -192,26 +192,14 @@ const NetworkGraph = ({ pullRequests, highlightedPrId }) => {
   return (
     <>
       <div className="graph-container">
-        <svg ref={svgRef} width="1400" height="650">
+        <svg ref={svgRef} width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-label="Contributor pull request review network">
           <g className="graph-content" />
         </svg>
       </div>
       <div
         ref={tooltipRef}
         className="tooltip"
-        style={{
-          position: "absolute",
-          visibility: "hidden",
-          backgroundColor: "#1f2937",
-          color: "#d1d5db",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          fontSize: "14px",
-          pointerEvents: "none",
-          whiteSpace: "nowrap",
-          zIndex: 1000,
-          maxWidth: "300px",
-        }}
+        role="status"
       />
     </>
   );

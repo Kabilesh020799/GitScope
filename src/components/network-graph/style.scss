@@ -1,21 +1,2 @@
-.tooltip {
-  position: absolute;
-  text-align: center;
-  padding: 8px;
-  font: 12px sans-serif;
-  background: lightgrey;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.graph-container {
-  width: calc(100% - 60px);
-  height: calc(100% - 60px);
-  padding: 30px 30px;
-  overflow: hidden; // You might change this to auto if you want scrolling as well
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
+.graph-container { width: min(1180px, 100%); height: min(620px, 65vh); min-height: 420px; margin: auto; overflow: hidden; position: relative; display: flex; justify-content: center; border: 1px solid var(--border-color, #263248); border-radius: 20px; background: var(--surface, rgba(18,26,43,.85)); box-shadow: var(--shadow-lg, 0 24px 60px rgba(0,0,0,.24)); svg { width: 100%; height: 100%; } }
+.tooltip { position: absolute; visibility: hidden; max-width: min(300px, calc(100vw - 2rem)); padding: .65rem .8rem; border: 1px solid var(--border-color, #33415c); border-radius: 9px; background: var(--surface-raised, #172238); color: var(--text-primary, #f4f7ff); box-shadow: 0 12px 35px rgba(0,0,0,.35); font-size: .82rem; pointer-events: none; z-index: 1000; }

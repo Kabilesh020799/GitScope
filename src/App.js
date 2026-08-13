@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 import MainRoute from './router/route';
-import AuthControls from './components/auth-controls/AuthControls';
+import AppShell from './components/app-shell/AppShell';
 
 function App() {
   return (
@@ -10,8 +10,7 @@ function App() {
       <Router
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
-        <AuthControls />
-        <MainRoute />
+        <AppShell><MainRoute /></AppShell>
       </Router>
     </div>
   );

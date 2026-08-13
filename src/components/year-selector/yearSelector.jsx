@@ -8,28 +8,32 @@ const YearSelector = ({
   hasAllTime = false,
 }) => {
   return (
-    <div className="year-selector">
+    <div className="year-selector" role="group" aria-label="Select reporting period">
       {hasAllTime && years.length && (
-        <div
+        <button
+          type="button"
           key="all"
           onClick={() => onSelectYear("all")}
           className={`year-selector-item ${
             selectedYear === "all" ? "selected" : ""
           }`}
+          aria-pressed={selectedYear === "all"}
         >
           All Time
-        </div>
+        </button>
       )}
       {years.map((yearItem) => (
-        <div
+        <button
+          type="button"
           key={yearItem}
           onClick={() => onSelectYear(yearItem)}
           className={`year-selector-item ${
             selectedYear === yearItem ? "selected" : ""
           }`}
+          aria-pressed={selectedYear === yearItem}
         >
           {yearItem}
-        </div>
+        </button>
       ))}
     </div>
   );

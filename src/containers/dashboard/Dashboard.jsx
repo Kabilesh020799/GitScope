@@ -15,6 +15,7 @@ const Dashboard = () => {
   );
   const { repoUrl } = useSelector((state) => state.loginReducer);
   const loading = useDashboardStats(repoUrl);
+  const repositoryName = repoUrl.split("/").filter(Boolean).slice(-2).join(" / ");
 
   if (!repoUrl) {
     return (
@@ -71,14 +72,16 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <motion.h1
-        className="dashboard-title"
+      <motion.header
+        className="dashboard-header"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        Git Scope Dashboard
-      </motion.h1>
+        <span className="dashboard-eyebrow">Repository overview</span>
+        <h1 className="dashboard-title">{repositoryName || "GitScope dashboard"}</h1>
+        <p>One clear view of activity, collaboration, and delivery health.</p>
+      </motion.header>
 
       <div className="dashboard-cards">
         {cardData.map((card) => (
@@ -98,7 +101,11 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="dashboard-contents">
+      <section className="dashboard-contents" aria-labelledby="explore-insights">
+        <div className="dashboard-section-heading">
+          <span>Deep dives</span>
+          <h2 id="explore-insights">Explore your repository</h2>
+        </div>
         {rowCards.map((row) => (
           <motion.div
             key={row.title}
@@ -109,7 +116,7 @@ const Dashboard = () => {
             <DashboardRowCard {...row} />
           </motion.div>
         ))}
-      </div>
+      </section>
     </div>
   );
 };

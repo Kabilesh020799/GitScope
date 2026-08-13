@@ -1,112 +1,17 @@
-.heatmap-container {
-  position: relative;
-
-  &-no-commits {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 18px;
-  }
+.heatmap-container { position: relative; width: 100%; overflow-x: auto;
+  &-no-commits { min-height: 300px; display: grid; place-content: center; color: var(--text-secondary, #9aa8bf); }
 }
-
-.heatmap-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(10, 10, 10, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.heatmap-modal-content {
-  background: #1f2937;
-  padding: 30px 40px;
-  border-radius: 12px;
-  width: 420px;
-  max-height: 80vh;
-  overflow-y: auto;
-  color: #d1d5db;
-  position: relative;
-  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.4s ease;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.modal-title {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.modal-close {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: #9ca3af;
-  cursor: pointer;
-}
-
-.commit-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.commit-item {
-  padding: 12px;
-  margin-bottom: 12px;
-  background: #374151;
-  border-radius: 8px;
-}
-
-.commit-author {
-  font-weight: 600;
-  font-size: 16px;
-  color: #60a5fa;
-}
-
-.commit-message {
-  margin-top: 5px;
-  font-style: italic;
-  font-size: 14px;
-  color: #d1d5db;
-}
-
-.commit-time {
-  margin-top: 5px;
-  font-size: 12px;
-  color: #9ca3af;
-  text-align: right;
-}
-
-.no-commits {
-  margin-top: 20px;
-  color: #9ca3af;
-}
+.heatmap { min-width: 680px; }
+.heatmap-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem; background: rgba(3, 7, 18, .78); backdrop-filter: blur(8px); animation: fadeIn .18s ease; }
+.heatmap-modal-content { position: relative; width: min(560px, 100%); max-height: min(78vh, 720px); overflow-y: auto; box-sizing: border-box; padding: 1.75rem; border: 1px solid var(--border-color, #33415c); border-radius: 18px; background: var(--surface-raised, #172238); color: var(--text-primary, #f4f7ff); box-shadow: 0 30px 80px rgba(0,0,0,.5); animation: slideIn .22s ease; }
+.modal-title { margin: 0 2rem 1.25rem 0; font-size: 1.35rem; }
+.modal-close { position: absolute; top: .85rem; right: .9rem; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--surface-hover, #25324a); color: var(--text-primary, #fff); cursor: pointer; font-size: 1.5rem; &:hover { background: #33415c; } &:focus-visible { outline: 2px solid var(--accent, #7180ff); } }
+.commit-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .7rem; }
+.commit-item { padding: 1rem; border: 1px solid var(--border-color, #2c3950); border-radius: 12px; background: var(--surface, #101a2d); }
+.commit-author { color: var(--accent-light, #9ba7ff); font-weight: 700; }
+.commit-message { margin-top: .35rem; color: var(--text-primary, #eef2ff); font-size: .92rem; line-height: 1.55; button { border: 0; background: transparent; color: var(--accent-light, #9ba7ff) !important; } }
+.commit-time { margin-top: .55rem; color: var(--text-muted, #77859c); font-size: .78rem; }
+.no-commits { color: var(--text-secondary, #9aa8bf); }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .heatmap-modal, .heatmap-modal-content { animation: none; } }

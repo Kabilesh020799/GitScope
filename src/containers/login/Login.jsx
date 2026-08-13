@@ -10,6 +10,8 @@ import { useRepoActions } from "../../hooks/useRepoActions";
 
 const Login = () => {
   const [repo, setRepo] = useState("");
+  const [isLoadingRepos, setIsLoadingRepos] = useState(false);
+  const [repoError, setRepoError] = useState("");
   const navigate = useNavigate();
 
   const { bearerToken } = useSelector((state) => state.signinReducer);
@@ -21,7 +23,7 @@ const Login = () => {
       navigate("/login");
       return;
     }
-    if (repo) createAndSelectRepo(repo);
+    if (repo.trim()) createAndSelectRepo(repo.trim());
   }, [repo, bearerToken, createAndSelectRepo, navigate]);
 
   const handleRepoClick = useCallback(
@@ -33,8 +35,16 @@ const Login = () => {
 
   useEffect(() => {
     const fetchRepoList = async () => {
-      const fetchedRepos = await fetchRepos(bearerToken);
-      setRepoList(fetchedRepos);
+      setIsLoadingRepos(true);
+      setRepoError("");
+      try {
+        const fetchedRepos = await fetchRepos(bearerToken);
+        setRepoList(fetchedRepos || []);
+      } catch (error) {
+        setRepoError(error?.message || "We couldn't load your saved repositories.");
+      } finally {
+        setIsLoadingRepos(false);
+      }
     };
 
     if (bearerToken) fetchRepoList();
@@ -42,7 +52,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-container-header">
+      <header className="login-container-header">
         <div className="brand" aria-label="GitScope home">
           <span className="brand-mark" aria-hidden="true">G</span>
           <span>GitScope</span>
@@ -55,18 +65,18 @@ const Login = () => {
             Sign in
           </button>
         )}
-      </div>
+      </header>
       <div className="login-container-middle">
         <LoginBackground />
       </div>
-      <div className="login-container-body">
+      <main className="login-container-body">
         <div className="text-container">
           <span className="eyebrow">Repository intelligence, in seconds</span>
           <h1>Understand the people and patterns behind your code.</h1>
           <p className="hero-copy">
             Turn GitHub activity into clear, useful insights for your team.
           </p>
-          <div className="repo-name">
+          <form className="repo-name" onSubmit={(event) => { event.preventDefault(); onContinue(); }}>
             <label htmlFor="repository-name">GitHub repository</label>
             <div className="repo-name-wrapper">
               <input
@@ -78,11 +88,9 @@ const Login = () => {
                 autoComplete="off"
                 spellCheck="false"
                 aria-describedby={!bearerToken ? "repo-auth-note" : undefined}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onContinue();
-                }}
               />
               <button
+                type="submit"
                 className="repo-name-wrapper-btn"
                 onClick={onContinue}
                 disabled={!repo.trim() || !bearerToken}
@@ -95,9 +103,11 @@ const Login = () => {
                 Sign in first to analyze private or public repositories.
               </p>
             )}
-          </div>
+          </form>
         </div>
-      </div>
+      </main>
+      {isLoadingRepos && <p className="repo-status" role="status">Loading saved repositories…</p>}
+      {repoError && <p className="repo-status repo-status--error" role="alert">{repoError}</p>}
       {repoList?.length ? (
         <RepoList repoList={repoList} onRepoSelect={handleRepoClick} />
       ) : null}

@@ -31,7 +31,7 @@ const constructGitUrl = (repoUrl, key) => {
 };
 
 const extractRepoName = (url) => {
-  const match = url.match(/github\.com\/[^\/]+\/([^\/]+)/);
+  const match = url.match(/github\.com\/[^/]+\/([^/]+)/);
   if (!match) return "";
   const name = match[1];
   return name.charAt(0).toUpperCase() + name.slice(1);

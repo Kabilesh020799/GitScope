@@ -1,13 +1,30 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { dates, months } from "./constants";
 import "./style.scss";
 
-const Heatmap = ({ data, margin }) => {
+const DEFAULT_MARGIN = { top: 30, right: 30, bottom: 30, left: 30 };
+
+const Heatmap = ({ data, margin = DEFAULT_MARGIN }) => {
   const [selectedDayCommits, setSelectedDayCommits] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [expandedMessages, setExpandedMessages] = useState({});
+  const chartRef = useRef(null);
+  const tooltipRef = useRef(null);
+
+  const handleDayClick = useCallback((month, day) => {
+    const dayCommits = data
+      .filter((commit) => {
+        const date = new Date(commit?.commit?.author?.date);
+        return date.toLocaleString("default", { month: "short" }) === month && date.getDate() === Number(day);
+      })
+      .sort((a, b) => new Date(b?.commit?.author?.date) - new Date(a?.commit?.author?.date));
+    setSelectedDayCommits(dayCommits);
+    setSelectedDate(`${month} ${day}`);
+    setShowModal(true);
+    setExpandedMessages({});
+  }, [data]);
 
   const processedData = useMemo(() => {
     if (!data.length) return [];
@@ -39,17 +56,23 @@ const Heatmap = ({ data, margin }) => {
   useEffect(() => {
     if (!processedData.length) return;
 
-    d3.select("#my_dataviz").selectAll("*").remove();
+    const root = d3.select(chartRef.current);
+    root.selectAll("*").remove();
 
     const totalWidth = Math.min(window.innerWidth - 60, 1000);
     const width = totalWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     const svg = d3
-      .select("#my_dataviz")
+      .select(chartRef.current)
       .append("svg")
       .attr("width", totalWidth)
       .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${totalWidth} ${height + margin.top + margin.bottom}`)
+      .attr("role", "img")
+      .attr("aria-label", "Commit activity heatmap by month and day")
+      .style("width", "100%")
+      .style("height", "auto")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -86,7 +109,7 @@ const Heatmap = ({ data, margin }) => {
             .style("opacity", 0)
             .style("cursor", "pointer")
             .on("mouseover", (event, d) => {
-              d3.select("#tooltip")
+              d3.select(tooltipRef.current)
                 .style("visibility", "visible")
                 .text(`Total Commits: ${d.value}`);
             })
@@ -102,12 +125,12 @@ const Heatmap = ({ data, margin }) => {
                 window.innerHeight - tooltipHeight - 10
               );
 
-              d3.select("#tooltip")
+              d3.select(tooltipRef.current)
                 .style("left", `${xPos}px`)
                 .style("top", `${yPos}px`);
             })
             .on("mouseleave", () => {
-              d3.select("#tooltip").style("visibility", "hidden");
+              d3.select(tooltipRef.current).style("visibility", "hidden");
             })
             .on("click", (event, d) => {
               handleDayClick(d.group, d.variable);
@@ -118,32 +141,20 @@ const Heatmap = ({ data, margin }) => {
         (update) => update,
         (exit) => exit.remove()
       );
-  }, [processedData, margin]);
-
-  const handleDayClick = (month, day) => {
-    const dayCommits = data
-      .filter((commit) => {
-        const date = new Date(commit?.commit?.author?.date);
-        const commitMonth = date.toLocaleString("default", { month: "short" });
-        const commitDay = date.getDate();
-        return commitMonth === month && commitDay === Number(day);
-      })
-      .sort(
-        (a, b) =>
-          new Date(b?.commit?.author?.date) - new Date(a?.commit?.author?.date)
-      );
-
-    setSelectedDayCommits(dayCommits);
-    setSelectedDate(`${month} ${day}`);
-    setShowModal(true);
-    setExpandedMessages({});
-  };
+  }, [processedData, margin, handleDayClick]);
 
   const closeModal = useCallback(() => {
     setShowModal(false);
     setSelectedDayCommits([]);
     setSelectedDate("");
   }, []);
+
+  useEffect(() => {
+    if (!showModal) return undefined;
+    const onKeyDown = (event) => event.key === "Escape" && closeModal();
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showModal, closeModal]);
 
   const toggleExpand = useCallback((index) => {
     setExpandedMessages((prev) => ({
@@ -160,7 +171,7 @@ const Heatmap = ({ data, margin }) => {
         </div>
       ) : null}
       <div
-        id="tooltip"
+        ref={tooltipRef}
         role="status"
         style={{
           position: "absolute",
@@ -177,9 +188,9 @@ const Heatmap = ({ data, margin }) => {
         }}
       />
 
-      <div className="heatmap" id="my_dataviz" />
+      <div className="heatmap" ref={chartRef} />
       {showModal && (
-        <div className="heatmap-modal" role="presentation">
+        <div className="heatmap-modal" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && closeModal()}>
           <div
             className="heatmap-modal-content"
             role="dialog"
@@ -256,15 +267,6 @@ const Heatmap = ({ data, margin }) => {
       )}
     </div>
   );
-};
-
-Heatmap.defaultProps = {
-  margin: {
-    top: 30,
-    right: 30,
-    bottom: 30,
-    left: 30,
-  },
 };
 
 export default Heatmap;

@@ -39,12 +39,12 @@ const CommitActivity = () => {
       <div className="commit-activity-wrapper">
         <div className="commit-activity-header-section">
           <header className="commit-activity-header">
-            <div>
-              Commit history of the repo for
-              <span style={{ color: "#1d4ed8" }}> {repoUrl}</span>
+            <div><p className="analytics-eyebrow">Repository insights</p>
+              <h1>Commit activity</h1>
+              <p>Explore contribution patterns across the calendar for <strong>{repoUrl}</strong>.</p>
             </div>
             <button className="commit-activity-btn" onClick={onClickDashboard}>
-              Go to Dashboard
+              <span aria-hidden="true">←</span> Dashboard
             </button>
           </header>
 
@@ -58,9 +58,11 @@ const CommitActivity = () => {
             <input
               type="text"
               className="contributor-search-input"
-              placeholder="Search contributor..."
+              placeholder="Filter by contributor…"
               aria-label="Search contributors"
+              role="combobox"
               aria-expanded={dropdownOpen}
+              aria-controls="contributor-options"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
@@ -68,7 +70,7 @@ const CommitActivity = () => {
             />
 
             {dropdownOpen && filteredContributors.length > 0 && (
-              <div className="contributor-dropdown" role="listbox">
+              <div id="contributor-options" className="contributor-dropdown" role="listbox">
                 {filteredContributors.map((name) => (
                   <button
                     type="button"
@@ -105,13 +107,14 @@ const CommitActivity = () => {
 
       <div className="commit-activity-graphs">
         {loading ? (
-          <div className="commit-activity-loading">
+          <div className="commit-activity-loading" role="status" aria-label="Loading commit activity">
             <CircularProgress size={60} />
+            <span>Building your commit calendar…</span>
           </div>
         ) : commits.length > 0 ? (
           <Heatmap data={filteredCommits} />
         ) : (
-          <div className="no-commits-text">No Commits Found For {year}</div>
+          <div className="no-commits-text"><strong>No commits found</strong><span>Try another year or clear contributor filters.</span></div>
         )}
       </div>
     </div>

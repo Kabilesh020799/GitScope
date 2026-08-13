@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
 const RadarChart = (props) => {
   const { data } = props;
+  const rootRef = useRef(null);
 
   useEffect(() => {
     if (!data || data.length === 0) return null;
@@ -13,11 +14,19 @@ const RadarChart = (props) => {
       chartRadius =
         Math.min(width, height) / 2 - Math.max(...Object.values(margin));
 
-    const svg = d3
-      .select(".radar-chart")
+    const root = d3.select(rootRef.current);
+    root.selectAll("*").remove();
+    const maxValue = d3.max(data, (d) => d.value) || 1;
+    const normalizedData = data.map((d) => ({ ...d, normalized: d.value / maxValue }));
+    const svg = root
       .append("svg")
       .attr("width", width)
       .attr("height", height)
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("role", "img")
+      .attr("aria-label", "Contributor activity comparison")
+      .style("width", "100%")
+      .style("height", "auto")
       .append("g")
       .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
@@ -25,13 +34,13 @@ const RadarChart = (props) => {
     const radarLine = d3
       .lineRadial()
       .curve(d3.curveLinearClosed)
-      .radius((d) => d.value * chartRadius)
+      .radius((d) => d.normalized * chartRadius)
       .angle((d, i) => (i * 2 * Math.PI) / data.length);
 
     // Append the backgrounds
     svg
       .append("path")
-      .datum(data)
+      .datum(normalizedData)
       .attr("d", radarLine)
       .attr("stroke", "darkblue")
       .attr("fill", "lightblue")
@@ -67,33 +76,34 @@ const RadarChart = (props) => {
             Math.sin((i * 2 * Math.PI) / data.length - Math.PI / 2)
         )
         .attr("text-anchor", "middle")
-        .text(d.axis)
-        .style("fill", "#555963");
+        .text(`${d.axis} · ${d.value}`)
+        .style("fill", "#a8b3c7")
+        .style("font-size", "13px");
     });
 
     // Draw the points
     svg
       .selectAll(".point")
-      .data(data)
+      .data(normalizedData)
       .enter()
       .append("circle")
       .attr(
         "cx",
         (d) =>
-          chartRadius * d.value * Math.cos(radarLine.angle()(d) - Math.PI / 2)
+          chartRadius * d.normalized * Math.cos(radarLine.angle()(d) - Math.PI / 2)
       )
       .attr(
         "cy",
         (d) =>
-          chartRadius * d.value * Math.sin(radarLine.angle()(d) - Math.PI / 2)
+          chartRadius * d.normalized * Math.sin(radarLine.angle()(d) - Math.PI / 2)
       )
       .attr("r", 4)
       .attr("fill", "darkblue");
 
-    return () => d3.select(".radar-chart").selectAll("*").remove();
+    return () => root.selectAll("*").remove();
   }, [data]);
 
-  return <div className="radar-chart" />;
+  return <div ref={rootRef} className="radar-chart" />;
 };
 
 export default React.memo(RadarChart);

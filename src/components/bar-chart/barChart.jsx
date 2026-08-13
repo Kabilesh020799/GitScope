@@ -1,13 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
 
 const BarChart = ({ data, classKey }) => {
-  const dataEntries = Object.entries(data || {});
-  const sortedEntries = dataEntries.sort((a, b) => b[1] - a[1])?.slice(0, 10);
+  const sortedEntries = useMemo(
+    () => Object.entries(data || {}).sort((a, b) => b[1] - a[1]).slice(0, 10),
+    [data]
+  );
+  const rootRef = useRef(null);
 
   useEffect(() => {
     // Clean previous chart
-    d3.select(`.bar-chart-${classKey}`).selectAll("*").remove();
+    const root = d3.select(rootRef.current);
+    root.selectAll("*").remove();
 
     // Dimensions
     const margin = { top: 30, right: 30, bottom: 70, left: 60 };
@@ -16,10 +20,15 @@ const BarChart = ({ data, classKey }) => {
 
     // Append SVG
     const svg = d3
-      .select(`.bar-chart-${classKey}`)
+      .select(rootRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr("role", "img")
+      .attr("aria-label", `Top ${classKey} words by frequency`)
+      .style("width", "100%")
+      .style("height", "auto")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -57,10 +66,11 @@ const BarChart = ({ data, classKey }) => {
       .attr("y", (d) => y(d[1]))
       .attr("width", x.bandwidth())
       .attr("height", (d) => height - y(d[1]))
-      .attr("fill", "#69b3a2");
-  }, [data, classKey]); // rerun when props change
+      .attr("rx", 4)
+      .attr("fill", classKey === "negative" ? "#fb7185" : "#34d399");
+  }, [sortedEntries, classKey]);
 
-  return <div className={`bar-chart-${classKey}`} />;
+  return <div ref={rootRef} className={`bar-chart bar-chart-${classKey}`} />;
 };
 
 export default BarChart;
