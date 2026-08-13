@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 const UserContributions = () => {
   const dispatch = useDispatch();
   const { collaborators } = useSelector((state) => state.commitReducer);
+  const repoUrl = useSelector((state) => state.loginReducer.repoUrl);
   const [dropdownValue, setDropdownValue] = useState("");
   const [radarData, setRadarData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,9 +29,10 @@ const UserContributions = () => {
 
   useEffect(() => {
     setLoading(true);
-    getAllCollaborators()
+    let active = true;
+    getAllCollaborators(repoUrl)
       .then((res) => {
-        if (res.status !== 403) {
+        if (active) {
           dispatch(replaceCollaborators({ data: res }));
         }
       })
@@ -38,9 +40,10 @@ const UserContributions = () => {
         console.error(err);
       })
       .finally(() => {
-        setLoading(false);
+        if (active) setLoading(false);
       });
-  }, []);
+    return () => { active = false; };
+  }, [dispatch, repoUrl]);
 
   const onSelectDropdown = useCallback((value) => {
     const selectedUser = value.target.value;
@@ -95,10 +98,10 @@ const UserContributions = () => {
         >
           {collaborators?.map((collaborator) => (
             <MenuItem
-              key={collaborator?.author?.login}
-              value={collaborator?.author?.login}
+              key={collaborator?.login}
+              value={collaborator?.login}
             >
-              {collaborator?.author?.login}
+              {collaborator?.login}
             </MenuItem>
           ))}
         </Select>

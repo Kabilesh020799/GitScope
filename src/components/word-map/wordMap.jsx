@@ -54,7 +54,7 @@ const WordMap = (props) => {
     }
 
     return () => {
-      d3.select(`.word-cloud-${classKey}`).html("");
+      d3.select(`.word-cloud-${classKey}`).selectAll("*").remove();
     };
   }, [words, margin, classKey, fontSize, rotate, fillColor]);
 

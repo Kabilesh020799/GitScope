@@ -14,29 +14,32 @@ import { useEffect, useState } from "react";
 
 export const useDashboardStats = (repoUrl) => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(repoUrl));
 
   useEffect(() => {
+    let active = true;
     const fetchStats = async () => {
+      setLoading(true);
       Promise.all([
         getTotalCommits(repoUrl).then((res) => {
-          dispatch(addTotalCommits({ data: res?.length }));
-          dispatch(addCreatedDate({ data: res?.createdYear }));
+          if (active) dispatch(addTotalCommits({ data: res?.length }));
+          if (active) dispatch(addCreatedDate({ data: res?.createdYear }));
         }),
         getCollaborators(repoUrl).then((res) => {
           if (res.status !== 403) {
-            dispatch(addTotalCollaborators({ data: res?.length }));
+            if (active) dispatch(addTotalCollaborators({ data: res?.length }));
           }
         }),
         getTotalPullRequests(repoUrl).then((res) => {
-          dispatch(setPulls({ data: res?.length }));
+          if (active) dispatch(setPulls({ data: res?.length }));
         }),
-      ]).finally(() => {
-        setLoading(false);
-      });
+      ]).catch((error) => console.error("Failed to load dashboard", error))
+        .finally(() => active && setLoading(false));
     };
 
     if (repoUrl) fetchStats();
+    else setLoading(false);
+    return () => { active = false; };
   }, [dispatch, repoUrl]);
 
   return loading;

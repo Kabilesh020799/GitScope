@@ -59,6 +59,8 @@ const CommitActivity = () => {
               type="text"
               className="contributor-search-input"
               placeholder="Search contributor..."
+              aria-label="Search contributors"
+              aria-expanded={dropdownOpen}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
@@ -66,15 +68,18 @@ const CommitActivity = () => {
             />
 
             {dropdownOpen && filteredContributors.length > 0 && (
-              <div className="contributor-dropdown">
+              <div className="contributor-dropdown" role="listbox">
                 {filteredContributors.map((name) => (
-                  <div
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected="false"
                     key={name}
                     className="contributor-dropdown-item"
                     onClick={() => handleContributorSelect(name)}
                   >
                     {name}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -83,12 +88,14 @@ const CommitActivity = () => {
               {selectedContributors.map((name) => (
                 <div key={name} className="chip">
                   {name}
-                  <span
+                  <button
+                    type="button"
                     className="remove-chip"
                     onClick={() => handleRemoveChip(name)}
+                    aria-label={`Remove ${name} filter`}
                   >
                     ×
-                  </span>
+                  </button>
                 </div>
               ))}
             </div>

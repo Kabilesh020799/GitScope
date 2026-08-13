@@ -24,7 +24,7 @@ const BubbleGraph = ({ data, margin }) => {
   useEffect(() => {
     if (!processedData.length) return;
 
-    d3.select(".bubble-graph").html("");
+    d3.select(".bubble-graph").selectAll("*").remove();
 
     const width = 500 - margin.left - margin.right;
     const height = 420 - margin.top - margin.bottom;
@@ -87,17 +87,17 @@ const BubbleGraph = ({ data, margin }) => {
       .attr("cy", (d) => y(d.commit))
       .attr("r", (d) => z(d.commit))
       .style("fill", (d) => color(d.login))
-      .on("mouseover", (_, d) => {
+      .on("mouseover", (event, d) => {
         tooltip
           .style("opacity", 1)
-          .html(`${d.login}: ${d.commit}`)
-          .style("left", `${d3.event.pageX + 10}px`)
-          .style("top", `${d3.event.pageY - 20}px`);
+          .text(`${d.login}: ${d.commit}`)
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY - 20}px`);
       })
-      .on("mousemove", () => {
+      .on("mousemove", (event) => {
         tooltip
-          .style("left", `${d3.event.pageX + 10}px`)
-          .style("top", `${d3.event.pageY - 20}px`);
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY - 20}px`);
       })
       .on("mouseout", () => {
         tooltip.style("opacity", 0);

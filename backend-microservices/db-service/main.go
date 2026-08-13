@@ -5,6 +5,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	dbv1 "gitscope.com/backend-microservices/proto/db/v1"
@@ -24,15 +27,23 @@ func main() {
 	}
 
 	log.Println("Connecting to database...")
-	log.Println(os.Getenv("DATABASE_URL"))
-
 	var err error
-	conn, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	connectCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	conn, err = pgxpool.New(connectCtx, databaseURL)
+	cancel()
 	if err != nil {
 		log.Fatalf("DB connect error: %v", err)
 	}
 
-	log.Println("✅ Connected to database")
+	defer conn.Close()
+	pingCtx, pingCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer pingCancel()
+	if err := conn.Ping(pingCtx); err != nil {
+		log.Fatalf("DB ping error: %v", err)
+	}
+	log.Println("Connected to database")
 
 	listener, err := net.Listen("tcp", ":50052")
 	if err != nil {
@@ -42,7 +53,10 @@ func main() {
 	grpcServer := grpc.NewServer()
 	dbv1.RegisterDBServiceServer(grpcServer, &DBServer{})
 	log.Println("DBService running on :50052")
-	grpcServer.Serve(listener)	
+	go func() { <-ctx.Done(); grpcServer.GracefulStop() }()
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Printf("serve: %v", err)
+	}
 }
 
 func (s *DBServer) ExistsUser(ctx context.Context, req *dbv1.ExistsUserRequest) (*dbv1.ExistsUserResponse, error) {
@@ -52,7 +66,7 @@ func (s *DBServer) ExistsUser(ctx context.Context, req *dbv1.ExistsUserRequest) 
 }
 
 func (s *DBServer) InsertUser(ctx context.Context, req *dbv1.InsertUserRequest) (*dbv1.InsertUserResponse, error) {
-	_, err := conn.Exec(ctx, "INSERT INTO users (username, password) VALUES ($1, $2)", req.Username, req.Password)
+	_, err := conn.Exec(ctx, "INSERT INTO users (username, password) VALUES ($1, $2) ON CONFLICT (username) DO NOTHING", req.Username, req.Password)
 	return &dbv1.InsertUserResponse{}, err
 }
 

@@ -20,6 +20,7 @@ export const useContributorStats = (year) => {
   const { collaborators, totalCollaborators, createdYear } = useSelector(
     (state) => state.commitReducer
   );
+  const repoUrl = useSelector((state) => state.loginReducer.repoUrl);
 
   useEffect(() => {
     (async () => {
@@ -27,21 +28,21 @@ export const useContributorStats = (year) => {
         setLoading(true);
 
         if (!totalCollaborators) {
-          const collabRes = await getCollaborators();
+          const collabRes = await getCollaborators(repoUrl);
           if (collabRes?.status !== 403) {
             dispatch(addTotalCollaborators({ data: collabRes?.length }));
           }
         }
 
         if (!createdYear) {
-          const commitRes = await getTotalCommits();
+          const commitRes = await getTotalCommits(repoUrl);
           dispatch(addCreatedDate({ data: commitRes?.createdYear }));
         }
       } finally {
         setLoading(false);
       }
     })();
-  }, [dispatch, totalCollaborators, createdYear]);
+  }, [dispatch, totalCollaborators, createdYear, repoUrl]);
 
   useEffect(() => {
     const fetchYearlyCollaborators = async () => {
@@ -50,8 +51,8 @@ export const useContributorStats = (year) => {
           setLoading(true);
           const filteredContributors =
             year === "all"
-              ? await getAllCollaborators()
-              : await getAllCollaboratorsByYear(Number(year));
+              ? await getAllCollaborators(repoUrl)
+              : await getAllCollaboratorsByYear(Number(year), 5, 2000, repoUrl);
           dispatch(replaceCollaborators({ data: filteredContributors }));
         } catch (error) {
           console.error("Failed to fetch contributors by year:", error);
@@ -62,7 +63,7 @@ export const useContributorStats = (year) => {
     };
 
     fetchYearlyCollaborators();
-  }, [year, createdYear, dispatch]);
+  }, [year, createdYear, dispatch, repoUrl]);
 
   return { loading, collaborators, totalCollaborators, createdYear };
 };

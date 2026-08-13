@@ -1,5 +1,5 @@
 import api from "../../requests";
-import { constructGitUrl, getStorage } from "../../utils/common-utils";
+import { constructGitUrl, getStorage, mapWithConcurrency } from "../../utils/common-utils";
 
 const fetchAllPullRequests = async (
   repoUrl,
@@ -21,8 +21,9 @@ const fetchAllPullRequests = async (
 };
 
 const enrichPullRequests = async (repoUrl, pullRequests) => {
-  return Promise.all(
-    pullRequests.map(async (pr) => {
+  return mapWithConcurrency(
+    pullRequests,
+    async (pr) => {
       try {
         const reviewsRes = await api.get(
           constructGitUrl(repoUrl, `pulls/${pr.number}/reviews`)
@@ -38,12 +39,13 @@ const enrichPullRequests = async (repoUrl, pullRequests) => {
         console.error(`Failed to fetch reviews for PR #${pr.number}`, err);
         return { ...pr, reviews: [], pullUrl: `${repoUrl}/pull/${pr?.number}` };
       }
-    })
+    },
+    6
   );
 };
 
-const fetchPullRequests = async (filter) => {
-  const repoUrl = getStorage("repo-url");
+const fetchPullRequests = async (filter, repoUrlParam) => {
+  const repoUrl = repoUrlParam || getStorage("repo-url");
   const rawPulls = await fetchAllPullRequests(repoUrl, filter);
   const enriched = await enrichPullRequests(repoUrl, rawPulls);
   return enriched;

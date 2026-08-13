@@ -15,6 +15,14 @@ const Dashboard = () => {
   const { repoUrl } = useSelector((state) => state.loginReducer);
   const loading = useDashboardStats(repoUrl);
 
+  if (!repoUrl) {
+    return (
+      <div className="dashboard-error">
+        <p>No repository selected. Please go back and choose a repository.</p>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -56,14 +64,6 @@ const Dashboard = () => {
       linkText: "Go to User Contribution Analysis",
     },
   ];
-
-  if (!repoUrl) {
-    return (
-      <div className="dashboard-error">
-        <p>No repository selected. Please go back and choose a repository.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="dashboard">

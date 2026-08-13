@@ -66,7 +66,7 @@ const commitSlice = createSlice({
       state.totalPulls = action.payload.data;
     },
     clearPulls(state) {
-      state.totalPulls = [];
+      state.totalPulls = 0;
     },
     setPullRequests(state, action) {
       state.pullRequests = action.payload.data;

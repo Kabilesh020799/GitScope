@@ -22,7 +22,7 @@ export const useAuth = () => {
         navigate("/search");
       }
     },
-    [dispatch]
+    [dispatch, navigate]
   );
 
   return { signin, error };

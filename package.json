@@ -30,7 +30,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .js,.jsx --max-warnings=0",
+    "validate:go": "sh scripts/validate-go.sh",
+    "validate": "npm run lint && npm test && npm run build && npm run validate:go",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },

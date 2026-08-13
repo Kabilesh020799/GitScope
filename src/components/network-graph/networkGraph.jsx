@@ -30,14 +30,8 @@ const drag = (simulation) => {
 const showTooltip = (tooltip, event, d) => {
   tooltip
     .style("visibility", "visible")
-    .html(
-      `
-      <div style="padding: 8px 12px; color: #fff;">
-        <strong>${d.id}</strong><br/>
-        PRs Authored: ${d.prsAuthored}<br/>
-        PRs Reviewed: ${d.prsReviewed}
-      </div>
-    `
+    .text(
+      `${d.id} — PRs Authored: ${d.prsAuthored}; PRs Reviewed: ${d.prsReviewed}`
     )
     .style("top", `${event.pageY - 10}px`)
     .style("left", `${event.pageX + 10}px`);

@@ -1,5 +1,5 @@
 import api from "../../requests";
-import { constructGitUrl, getStorage } from "../../utils/common-utils";
+import { constructGitUrl, getLinkPage, getStorage } from "../../utils/common-utils";
 import { store } from "../../store";
 
 const PAGE_SIZE = 100;
@@ -46,14 +46,9 @@ const getCollab = async (filter, repoUrlState) => {
 
 const fetchLastPageCount = async (getPageFn, repoUrlState) => {
   let result = await getPageFn("", repoUrlState);
-  const linkHeader = result.headers.get("Link")?.split(",");
-  const lastPageLink = linkHeader?.find((resultItem) =>
-    resultItem.includes('rel="last"')
-  );
+  const lastPage = getLinkPage(result.headers.get("Link"), "last");
 
-  if (lastPageLink) {
-    const match = lastPageLink.match(/&page=(\d+)>/);
-    const lastPage = match ? Number(match[1]) : 1;
+  if (lastPage) {
 
     const lastPageResponse = await getPageFn(`page=${lastPage}`, repoUrlState);
     const lastPageData = await lastPageResponse.json();
@@ -105,17 +100,15 @@ const getCollaborators = async (repoUrlState) => {
   };
 };
 
-const getAllPages = async (baseUrlBuilder, page = 1, accumulator = []) => {
-  const res = await api.get(baseUrlBuilder(page));
-  const linkHeader = res.headers.get("Link")?.split(",");
-  const nextPage = linkHeader?.some((item) => item.includes('rel="next"'));
-  const data = await res.json();
-
-  if (nextPage) {
-    return getAllPages(baseUrlBuilder, page + 1, [...accumulator, ...data]);
+const getAllPages = async (baseUrlBuilder) => {
+  const all = [];
+  let page = 1;
+  while (page) {
+    const res = await api.get(baseUrlBuilder(page));
+    all.push(...(await res.json()));
+    page = getLinkPage(res.headers.get("Link"), "next");
   }
-
-  return [...accumulator, ...data];
+  return all;
 };
 
 const getUserLocation = async (filter, repoUrlState) =>

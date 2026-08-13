@@ -4,7 +4,7 @@ metadata:
   name: auth-service
   namespace: gitscope
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: auth-service
@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: gitscope/auth-service:latest
-          imagePullPolicy: Never
+          image: gitscope/auth-service:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051
           env:
@@ -27,6 +27,20 @@ spec:
                   key: DATABASE_URL
             - name: JWT_SECRET
               valueFrom:
-                configMapKeyRef:
-                  name: gitscope-config
+                secretKeyRef:
+                  name: gitscope-secrets
                   key: JWT_SECRET
+          readinessProbe:
+            tcpSocket: { port: 50051 }
+            initialDelaySeconds: 3
+          livenessProbe:
+            tcpSocket: { port: 50051 }
+            initialDelaySeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities: { drop: ["ALL"] }

@@ -91,12 +91,9 @@ const BubbleChart = ({ data, width = 928, margin = 1 }) => {
           .duration(200)
           .attr("r", d.r * 1.1);
 
-        tooltip.style("opacity", 1).html(
-          `<div style="padding: 8px 12px; color: white;">
-              <strong>${d.data.login}</strong><br/>
-              ${d.data.value} Contributions
-            </div>`
-        );
+        tooltip
+          .style("opacity", 1)
+          .text(`${d.data.login}: ${d.data.value} Contributions`);
       })
       .on("mousemove", function (event) {
         tooltip

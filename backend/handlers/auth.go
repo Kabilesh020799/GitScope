@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"gitscope.com/backend/db"
 	"gitscope.com/backend/utils"
@@ -15,27 +15,26 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-var users = map[string]string {
-	"Kabilesh": "$2a$10$sBzujYDVwX3LHdssjf7AbOrEqT3caxyjrdUcvisRHPQ4K.XFjr362",
+func decodeCredentials(w http.ResponseWriter, r *http.Request) (Credentials, bool) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
+	var creds Credentials
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&creds); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return creds, false
+	}
+	creds.Username = strings.TrimSpace(creds.Username)
+	if len(creds.Username) < 3 || len(creds.Username) > 64 || len(creds.Password) < 8 || len(creds.Password) > 128 {
+		http.Error(w, "Username must be 3-64 characters and password 8-128 characters", http.StatusBadRequest)
+		return creds, false
+	}
+	return creds, true
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
-
-	err := json.NewDecoder(r.Body).Decode(&creds)
-	if err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	var exists bool
-	err = db.Conn.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM users WHERE username=$1)", creds.Username).Scan(&exists)
-	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-	if exists {
-		http.Error(w, "Username already taken", http.StatusConflict)
+	creds, ok := decodeCredentials(w, r)
+	if !ok {
 		return
 	}
 	// Hash password
@@ -46,9 +45,13 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert into database
-	_, err = db.Conn.Exec(context.Background(), "INSERT INTO users (username, password) VALUES ($1, $2)", creds.Username, string(hashedPassword))
+	result, err := db.Pool.Exec(r.Context(), "INSERT INTO users (username, password) VALUES ($1, $2) ON CONFLICT (username) DO NOTHING", creds.Username, string(hashedPassword))
 	if err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		return
+	}
+	if result.RowsAffected() == 0 {
+		http.Error(w, "Username already taken", http.StatusConflict)
 		return
 	}
 
@@ -57,30 +60,22 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
-	err := json.NewDecoder(r.Body).Decode(&creds)
-	if err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	creds, ok := decodeCredentials(w, r)
+	if !ok {
 		return
 	}
 
 	var storedPassword string
-	err = db.Conn.QueryRow(context.Background(), "SELECT password FROM users WHERE username=$1", creds.Username).Scan(&storedPassword)
+	var userID int
+	err := db.Pool.QueryRow(r.Context(), "SELECT password, id FROM users WHERE username=$1", creds.Username).Scan(&storedPassword, &userID)
 	if err != nil {
-		http.Error(w, "User not found", http.StatusUnauthorized)
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
-	var userID int
-	err = db.Conn.QueryRow(context.Background(), "SELECT id FROM users WHERE username=$1", creds.Username).Scan(&userID)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusUnauthorized)
-		return
-	}
-	
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(creds.Password))
 	if err != nil {
-		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 

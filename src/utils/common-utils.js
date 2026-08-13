@@ -4,7 +4,11 @@ const setStorage = (key, value) => {
 };
 
 const getStorage = (key) => {
-  return JSON.parse(localStorage.getItem(key));
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
+  }
 };
 
 const constructGitUrl = (repoUrl, key) => {
@@ -12,10 +16,16 @@ const constructGitUrl = (repoUrl, key) => {
     console.error("Repo URL is not available!");
     return "";
   }
-  const repoList = repoUrl.split("/");
-  const user = repoList?.[3];
-  const repoName = repoList?.[4];
-  return `${user}/${repoName}/${key ? key : ""}`;
+  try {
+    const parsed = new URL(repoUrl);
+    if (parsed.hostname !== "github.com") return "";
+    const [user, rawRepoName] = parsed.pathname.split("/").filter(Boolean);
+    const repoName = rawRepoName?.replace(/\.git$/, "");
+    if (!user || !repoName) return "";
+    return `${encodeURIComponent(user)}/${encodeURIComponent(repoName)}/${key || ""}`;
+  } catch {
+    return "";
+  }
 };
 
 const extractRepoName = (url) => {
@@ -30,4 +40,33 @@ const getHeaders = (bearerToken) => ({
   Authorization: `Bearer ${bearerToken}`,
 });
 
-export { setStorage, getStorage, constructGitUrl, extractRepoName, getHeaders };
+const getLinkPage = (linkHeader, relation) => {
+  const link = (linkHeader || "")
+    .split(",")
+    .find((item) => item.includes(`rel="${relation}"`));
+  const match = link?.match(/[?&]page=(\d+)/);
+  return match ? Number(match[1]) : null;
+};
+
+const mapWithConcurrency = async (items, worker, limit = 6) => {
+  const results = new Array(items.length);
+  let next = 0;
+  const run = async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await worker(items[index], index);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
+  return results;
+};
+
+export {
+  setStorage,
+  getStorage,
+  constructGitUrl,
+  extractRepoName,
+  getHeaders,
+  getLinkPage,
+  mapWithConcurrency,
+};

@@ -12,7 +12,6 @@ type ContextKey string
 
 const UserCtxKey ContextKey = "user"
 
-
 func JWTAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")

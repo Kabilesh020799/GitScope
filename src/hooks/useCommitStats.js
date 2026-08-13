@@ -10,6 +10,7 @@ import { getTotalCommits } from "../containers/dashboard/apiUtils";
 
 export const useCommitStats = (year) => {
   const { commits, createdYear } = useSelector((state) => state.commitReducer);
+  const repoUrl = useSelector((state) => state.loginReducer.repoUrl);
   const [loading, setLoading] = useState(false);
   const [years, setYears] = useState([]);
   const dispatch = useDispatch();
@@ -17,21 +18,17 @@ export const useCommitStats = (year) => {
   const getCommits = useCallback(async () => {
     setLoading(true);
     try {
+      const since = new Date(Date.UTC(year, 0, 1)).toISOString();
+      const until = new Date(Date.UTC(year, 11, 31, 23, 59, 59)).toISOString();
       const result = await getAllCommits(
-        `&since=${new Date(year, 0, 1)}&until=${new Date(
-          year,
-          11,
-          31,
-          23,
-          59,
-          59
-        )}`
+        `since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}`,
+        repoUrl
       );
       dispatch(replaceCommits({ data: result.length ? result : [] }));
     } finally {
       setLoading(false);
     }
-  }, [year, dispatch]);
+  }, [year, dispatch, repoUrl]);
 
   useEffect(() => {
     if (createdYear) {
@@ -49,10 +46,10 @@ export const useCommitStats = (year) => {
 
   useEffect(() => {
     getCommits();
-    getTotalCommits().then((res) => {
+    getTotalCommits(repoUrl).then((res) => {
       dispatch(addCreatedDate({ data: res.createdYear }));
-    });
-  }, [year, getCommits, dispatch]);
+    }).catch((error) => console.error("Failed to load commit range", error));
+  }, [year, getCommits, dispatch, repoUrl]);
 
   return { years, commits, loading, createdYear };
 };

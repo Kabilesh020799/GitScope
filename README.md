@@ -1,70 +1,136 @@
-# Getting Started with Create React App
+# GitScope
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+GitScope is a React dashboard for exploring GitHub repository activity. It combines GitHub commit, contributor, pull-request, comment, and review data with authenticated, user-specific saved repositories stored by a Go API in PostgreSQL.
 
-## Available Scripts
+## Supported architecture
 
-In the project directory, you can run:
+The production path is the root React application plus the monolithic API in `backend/`:
 
-### `npm start`
+```text
+Browser (React 18) ──► Go HTTP API ──► PostgreSQL
+       │
+       └─────────────► GitHub API proxy in the Go API
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The backend owns credentials and GitHub API access. The browser sends the GitScope JWT to the backend and must not contain a GitHub token.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+`backend-microservices/` is an experimental migration containing HTTP, auth gRPC, database gRPC, Compose, and Kubernetes examples. It is not feature-complete and is not the production path. `microfrontends/` is archived proof-of-concept code; see [microfrontends/README.md](microfrontends/README.md). Keeping these experiments explicitly out of the default build prevents them from being mistaken for deployable alternatives.
 
-### `npm test`
+## Requirements
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Docker with Docker Compose is sufficient for the complete local stack.
+- For development without containers: Node.js 20, npm, Go 1.23.8, and PostgreSQL 14 or newer.
+- A GitHub token is needed for repository analytics.
 
-### `npm run build`
+## Start the complete application with Docker
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The default Compose stack runs the supported React frontend, Go API, and PostgreSQL database. Database migrations are applied automatically when the database volume is first created.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Optionally copy the example configuration and add a fine-grained GitHub token:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```sh
+cp .env.example .env
+# Edit .env and set GITHUB_TOKEN. Also replace the local password and JWT secret.
+```
 
-### `npm run eject`
+Then start everything:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```sh
+docker compose up --build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Open `http://localhost:8080`. Only the frontend port is exposed; Nginx serves the SPA and proxies authentication and API traffic to the private backend service. PostgreSQL is private to the Compose network and persists in the `postgres_data` volume.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Useful lifecycle commands:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```sh
+docker compose up --build -d  # start in the background
+docker compose logs -f        # follow all service logs
+docker compose down           # stop containers and retain database data
+docker compose down -v        # stop and delete the local database volume
+```
 
-## Learn More
+`APP_PORT` can change the host port. `POSTGRES_PASSWORD`, `JWT_SECRET`, and `GITHUB_TOKEN` can be supplied through `.env` or the invoking environment. The committed defaults are for local development only; replace them anywhere shared or deployed.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Configuration
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Create `backend/.env` for local development. Never commit it.
 
-### Code Splitting
+```dotenv
+DATABASE_URL=postgres://gitscope:password@localhost:5432/gitscope?sslmode=disable
+JWT_SECRET=replace-with-at-least-32-random-bytes
+GITHUB_TOKEN=github-token-used-only-by-the-backend
+ALLOWED_ORIGINS=http://localhost:3000
+ADDR=:10000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Create a root `.env.local` containing only public browser configuration:
 
-### Analyzing the Bundle Size
+```dotenv
+REACT_APP_API_URL=http://localhost:10000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Do not define `REACT_APP_GITHUB_TOKEN`: Create React App embeds every `REACT_APP_*` value in its public bundle.
 
-### Making a Progressive Web App
+## Database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Apply the versioned SQL files in `backend/migrations/` in filename order before starting the API. They define users, saved repositories, uniqueness constraints, ownership relations, and indexes. Back up production data before applying a new migration and run migrations as a deployment step, not from each application replica.
 
-### Advanced Configuration
+For a local database:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```sh
+createdb gitscope
+psql gitscope -f backend/migrations/001_init.sql
+```
 
-### Deployment
+## Development
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Install and start the frontend:
 
-### `npm run build` fails to minify
+```sh
+npm ci
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In another terminal, start the supported backend:
+
+```sh
+cd backend
+go run .
+```
+
+The frontend runs at `http://localhost:3000`; the API defaults to `http://localhost:10000`.
+
+## Validation
+
+```sh
+npm run lint        # root React source
+npm test            # root tests only, non-interactive
+npm run build       # production frontend bundle
+npm run validate:go # test and vet every Go module
+npm run validate    # all of the above
+```
+
+GitHub Actions runs the same frontend and Go checks for pull requests and pushes to `main`. Add tests with every bug fix, especially around authorization, repository ownership, GitHub pagination/rate limits, stale requests, and chart rendering of untrusted values.
+
+## Deployment
+
+Build the frontend with `npm run build` and serve `build/` from a static host. Deploy the supported Go API behind TLS with secrets supplied by the platform. Run at least two API replicas only after confirming shared state is in PostgreSQL, configure health probes and request timeouts, and restrict CORS to the deployed frontend origin.
+
+The experimental Kubernetes resources under `backend-microservices/k8s/` require pinned image tags, externally managed secrets, TLS, probes, resource requests/limits, and an authenticated or network-isolated gRPC boundary before production use.
+
+## Repository layout
+
+- `src/`: supported React application, Redux state, hooks, and visualizations
+- `backend/`: supported Go HTTP API and database migrations
+- `backend-microservices/`: experimental service decomposition
+- `microfrontends/`: archived Module Federation/CRA experiments
+- `.github/workflows/ci.yml`: continuous validation
+
+## Security notes
+
+- Keep GitHub and JWT secrets server-side and rotate any previously browser-exposed token.
+- Treat repository names, usernames, commit messages, and comments as untrusted input; render them as text, never HTML.
+- Use a unique, high-entropy JWT secret and reject startup when required configuration is absent.
+- Do not log connection strings, tokens, password hashes, or authorization headers.
+- Keep dependencies and base images patched and review GitHub/API rate-limit behavior before enabling large repositories.

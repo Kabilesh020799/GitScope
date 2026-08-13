@@ -39,7 +39,7 @@ const Heatmap = ({ data, margin }) => {
   useEffect(() => {
     if (!processedData.length) return;
 
-    d3.select("#my_dataviz").html("");
+    d3.select("#my_dataviz").selectAll("*").remove();
 
     const totalWidth = Math.min(window.innerWidth - 60, 1000);
     const width = totalWidth - margin.left - margin.right;
@@ -86,10 +86,9 @@ const Heatmap = ({ data, margin }) => {
             .style("opacity", 0)
             .style("cursor", "pointer")
             .on("mouseover", (event, d) => {
-              d3.select("#tooltip").style("visibility", "visible")
-                .html(`<div style="text-align:center; font-weight:500;">
-                Total Commits: ${d.value}
-              </div>`);
+              d3.select("#tooltip")
+                .style("visibility", "visible")
+                .text(`Total Commits: ${d.value}`);
             })
             .on("mousemove", (event) => {
               const tooltipWidth = 150;
@@ -162,6 +161,7 @@ const Heatmap = ({ data, margin }) => {
       ) : null}
       <div
         id="tooltip"
+        role="status"
         style={{
           position: "absolute",
           backgroundColor: "#1f2937",
@@ -179,12 +179,17 @@ const Heatmap = ({ data, margin }) => {
 
       <div className="heatmap" id="my_dataviz" />
       {showModal && (
-        <div className="heatmap-modal">
-          <div className="heatmap-modal-content">
-            <button className="modal-close" onClick={closeModal}>
+        <div className="heatmap-modal" role="presentation">
+          <div
+            className="heatmap-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="heatmap-modal-title"
+          >
+            <button className="modal-close" onClick={closeModal} aria-label="Close commit details">
               ×
             </button>
-            <h2 className="modal-title">Commits on {selectedDate}</h2>
+            <h2 className="modal-title" id="heatmap-modal-title">Commits on {selectedDate}</h2>
 
             {selectedDayCommits.length > 0 ? (
               <ul className="commit-list">
@@ -204,7 +209,8 @@ const Heatmap = ({ data, margin }) => {
                         ) : (
                           <>
                             &quot;{message.slice(0, 100)}...&quot;
-                            <span
+                            <button
+                              type="button"
                               onClick={() => toggleExpand(index)}
                               style={{
                                 color: "#60a5fa",
@@ -213,11 +219,12 @@ const Heatmap = ({ data, margin }) => {
                               }}
                             >
                               Read more
-                            </span>
+                            </button>
                           </>
                         )}
                         {expanded && isLong && (
-                          <div
+                          <button
+                            type="button"
                             onClick={() => toggleExpand(index)}
                             style={{
                               color: "#60a5fa",
@@ -226,7 +233,7 @@ const Heatmap = ({ data, margin }) => {
                             }}
                           >
                             Show less
-                          </div>
+                          </button>
                         )}
                       </div>
                       <div className="commit-time">

@@ -1,7 +1,9 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es2021": true
+        "es2021": true,
+        "jest": true,
+        "node": true
     },
     "extends": [
         "eslint:recommended",
@@ -13,7 +15,9 @@ module.exports = {
                 "node": true
             },
             "files": [
-                ".eslintrc.{js,cjs}"
+                ".eslintrc.{js,cjs}",
+                "jest.config.js",
+                "test/**/*.js"
             ],
             "parserOptions": {
                 "sourceType": "script"
@@ -27,9 +31,15 @@ module.exports = {
     "plugins": [
         "react"
     ],
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
     "rules": {
         'semi': ['error', 'always'],
         "react/prop-types": "off",
         "no-useless-escape": "off",
+        "react/react-in-jsx-scope": "off",
     }
 }

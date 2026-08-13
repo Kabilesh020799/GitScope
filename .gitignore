@@ -2,14 +2,18 @@
 
 # dependencies
 /node_modules
+**/node_modules/
 /.pnp
 .pnp.js
 
 # testing
 /coverage
+**/coverage/
 
 # production
 /build
+**/build/
+**/dist/
 
 # misc
 .DS_Store
@@ -22,4 +26,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env
+.env.*
+!.env.example
 pnpm-lock.yaml
+
+# Local tools, generated binaries, caches, and archives
+.firebase/
+.cache/
+.eslintcache
+*.log
+*.zip
+*.tar.gz
+backend/backend
+backend/tmp/
+backend-microservices/**/bin/

@@ -3,5 +3,4 @@ kind: ConfigMap
 metadata:
   name: gitscope-config
   namespace: gitscope
-data:
-  JWT_SECRET: "your_jwt_secret_here"
+data: {}

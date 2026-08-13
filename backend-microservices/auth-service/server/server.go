@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
+	"strings"
+	"time"
 
 	authv1 "gitscope.com/backend-microservices/proto/auth/v1"
 	dbv1 "gitscope.com/backend-microservices/proto/db/v1"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc"
 )
 
 type AuthServer struct {
@@ -16,15 +16,14 @@ type AuthServer struct {
 	db dbv1.DBServiceClient
 }
 
-func NewAuthServer() *AuthServer {
-	conn, err := grpc.Dial("db-service:50052", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Failed to connect to db-service: %v", err)
-	}
-	return &AuthServer{db: dbv1.NewDBServiceClient(conn)}
-}
+func NewAuthServer(db dbv1.DBServiceClient) *AuthServer { return &AuthServer{db: db} }
 
 func (s *AuthServer) Signup(ctx context.Context, req *authv1.SignupRequest) (*authv1.SignupResponse, error) {
+	if err := validate(req.Username, req.Password); err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	existsResp, err := s.db.ExistsUser(ctx, &dbv1.ExistsUserRequest{Username: req.Username})
 	if err != nil {
 		return nil, errors.New("database error")
@@ -44,6 +43,11 @@ func (s *AuthServer) Signup(ctx context.Context, req *authv1.SignupRequest) (*au
 }
 
 func (s *AuthServer) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+	if err := validate(req.Username, req.Password); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	credResp, err := s.db.GetUserCredentials(ctx, &dbv1.GetUserCredentialsRequest{Username: req.Username})
 	if err != nil {
 		return nil, errors.New("user not found")
@@ -56,4 +60,12 @@ func (s *AuthServer) Login(ctx context.Context, req *authv1.LoginRequest) (*auth
 		return nil, errors.New("token error")
 	}
 	return &authv1.LoginResponse{Token: token}, nil
+}
+
+func validate(username, password string) error {
+	username = strings.TrimSpace(username)
+	if len(username) < 3 || len(username) > 64 || len(password) < 8 || len(password) > 128 {
+		return errors.New("invalid username or password length")
+	}
+	return nil
 }

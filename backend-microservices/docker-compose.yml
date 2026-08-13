@@ -5,8 +5,11 @@ services:
     build:
       context: .
       dockerfile: ./auth-service/Dockerfile
-    ports:
-      - "50051:50051"
+    expose:
+      - "50051"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_SERVICE_ADDR=db-service:50052
     networks:
       - gitscope-net
     depends_on:
@@ -27,8 +30,8 @@ services:
     build:
       context: .
       dockerfile: ./db-service/Dockerfile
-    ports:
-      - "50052:50052"
+    expose:
+      - "50052"
     networks:
       - gitscope-net
     environment:

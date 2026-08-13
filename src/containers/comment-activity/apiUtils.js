@@ -1,5 +1,5 @@
 import api from "../../requests";
-import { constructGitUrl, getStorage } from "../../utils/common-utils";
+import { constructGitUrl, getLinkPage, getStorage, mapWithConcurrency } from "../../utils/common-utils";
 
 let positiveWords = [];
 let negativeWords = [];
@@ -34,16 +34,6 @@ const mergeWordCounts = (base, additional) => {
   return base;
 };
 
-const parseTotalPages = (linkHeader) => {
-  const lastLink = linkHeader
-    .split(",")
-    .find((link) => link.includes('rel="last"'));
-  if (!lastLink) return 1;
-
-  const match = lastLink.match(/&page=(\d+)>/);
-  return match ? parseInt(match[1], 10) : 1;
-};
-
 const fetchCommentsPage = async (repoUrl, page, since) => {
   try {
     const res = await api.get(
@@ -58,9 +48,9 @@ const fetchCommentsPage = async (repoUrl, page, since) => {
   }
 };
 
-const getAllComments = async ({ year }) => {
+const getAllComments = async ({ year, repoUrl: repoUrlParam }) => {
   await loadWordLists();
-  const repoUrl = getStorage("repo-url");
+  const repoUrl = repoUrlParam || getStorage("repo-url");
   const since = new Date(year, 0, 1).toISOString();
 
   const firstRes = await api.get(
@@ -70,15 +60,17 @@ const getAllComments = async ({ year }) => {
     )
   );
   const firstComments = await firstRes.json();
-  const totalPages = parseTotalPages(firstRes.headers.get("Link") || "");
+  const totalPages = getLinkPage(firstRes.headers.get("Link"), "last") || 1;
 
   let allComments = [...firstComments];
 
   if (totalPages > 1) {
-    const requests = Array.from({ length: totalPages - 1 }, (_, i) =>
-      fetchCommentsPage(repoUrl, i + 2, since)
+    const pageNumbers = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+    const pages = await mapWithConcurrency(
+      pageNumbers,
+      (page) => fetchCommentsPage(repoUrl, page, since),
+      6
     );
-    const pages = await Promise.all(requests);
     pages.forEach((pageData) => allComments.push(...pageData));
   }
 

@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"gitscope.com/backend/db"
@@ -12,16 +13,19 @@ import (
 )
 
 type Repository struct {
-	ID	int	`json:"id"`
-	UserID	int	`json:"user_id"`
-	Name	string	`json:"name"`
-	URL	string	`json:"url"`
-	CreatedAt	time.Time	`json:"created_at"`
+	ID        int       `json:"id"`
+	UserID    int       `json:"user_id"`
+	Name      string    `json:"name"`
+	URL       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func AddRepository(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 	var repo Repository
-	err := json.NewDecoder(r.Body).Decode(&repo)
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	err := dec.Decode(&repo)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
@@ -35,15 +39,22 @@ func AddRepository(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo.UserID = claims.UserID
+	repo.Name = strings.TrimSpace(repo.Name)
+	repo.URL = strings.TrimSpace(repo.URL)
+	u, parseErr := url.ParseRequestURI(repo.URL)
+	if repo.Name == "" || len(repo.Name) > 200 || parseErr != nil || (u.Scheme != "https" && u.Scheme != "http") {
+		http.Error(w, "Invalid repository name or URL", http.StatusBadRequest)
+		return
+	}
 
-	err = db.Conn.QueryRow(
-		context.Background(),
+	err = db.Pool.QueryRow(
+		r.Context(),
 		"INSERT INTO repositories (user_id, name, url) VALUES ($1, $2, $3) RETURNING id, created_at", repo.UserID, repo.Name, repo.URL,
 	).Scan(&repo.ID, &repo.CreatedAt)
 
 	if err != nil {
-    http.Error(w, "Failed to insert repo", http.StatusInternalServerError)
-    return
+		http.Error(w, "Failed to insert repo", http.StatusInternalServerError)
+		return
 	}
 
 	json.NewEncoder(w).Encode(repo)
@@ -55,14 +66,18 @@ func GetRepositories(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	rows, err := db.Conn.Query(
-		context.Background(),
+	rows, err := db.Pool.Query(
+		r.Context(),
 		"SELECT id, user_id, name, url, created_at FROM repositories WHERE user_id = $1 ORDER BY created_at DESC",
 		claims.UserID,
 	)
 
 	if err != nil {
 		http.Error(w, "Failed to fetch repositories", http.StatusInternalServerError)
+		return
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, "Error reading repositories", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()

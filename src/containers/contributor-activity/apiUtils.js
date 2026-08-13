@@ -1,9 +1,8 @@
 import api from "../../requests";
 import { constructGitUrl, getStorage } from "../../utils/common-utils";
 
-const repoUrl = getStorage("repo-url");
-
-const getAllCollaborators = async () => {
+const getAllCollaborators = async (repoUrlParam) => {
+  const repoUrl = repoUrlParam || getStorage("repo-url");
   const res = await api.get(constructGitUrl(repoUrl, `stats/contributors`));
   const data = await res.json();
 
@@ -29,8 +28,10 @@ const getAllCollaborators = async () => {
 const getAllCollaboratorsByYear = async (
   year,
   maxRetries = 5,
-  delay = 2000
+  delay = 2000,
+  repoUrlParam
 ) => {
+  const repoUrl = repoUrlParam || getStorage("repo-url");
   const fetchStats = async (retries) => {
     const res = await api.get(constructGitUrl(repoUrl, `stats/contributors`));
 

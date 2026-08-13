@@ -1,4 +1,6 @@
 module.exports = {
+  roots: ["<rootDir>/src"],
+  testMatch: ["<rootDir>/src/**/?(*.)+(spec|test).[jt]s?(x)"],
   transform: {
     "^.+\\.jsx?$": "babel-jest",
   },
@@ -9,5 +11,6 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
   moduleNameMapper: {
     "\\.(css|scss)$": "identity-obj-proxy",
+    "\\.(svg|png|jpe?g|gif|webp)$": "<rootDir>/test/fileMock.js",
   },
 };
